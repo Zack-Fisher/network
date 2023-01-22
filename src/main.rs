@@ -2,18 +2,20 @@ use bevy::prelude::*;
 use bevy::input::keyboard::*;
 use bevy::input::mouse::*;
 
-mod network;
+mod player;
+
+use player::player_controller::*;
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::rgb(0.9, 0.9, 0.9)))
+        .insert_resource(ClearColor(Color::rgb(0.3, 0.3, 0.9)))
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
                     window: WindowDescriptor {
                         title: "NETWORK".to_string(),
-                        width: 500.0,
-                        height: 500.0,
+                        width: 1280.0,
+                        height: 720.0,
                         resizable: false,
                         ..Default::default()
                     },
@@ -21,28 +23,47 @@ fn main() {
                     }
                 )
         )
-        .add_system(keyboard_input_system)
-        .add_system(mouse_input_system)
+        .add_startup_system(init_scene)
+        .add_plugin(PlayerControllerPlugin)
         .run();
 }
 
-fn init_camera(
-    mut commands: Commands,
-) {
-    commands.spawn_bundle(Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..Default::default()
-    });
-}
 
 fn init_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
+    mut material: ResMut<Assets<StandardMaterial>>,
 ) {
-    commands.spawn_bundle(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Plane { size: 20.0 })),
+        material: material.add(Color::rgb(0.9, 0.7, 0.3).into()),
+        transform: Transform::from_xyz(0.0, -0.5, 0.0),
         ..Default::default()
     });
+
+    //spawn a light
+
+    commands
+        .spawn(PointLightBundle {
+            point_light: PointLight {
+                intensity: 1500.0,
+                shadows_enabled: true,
+                ..default()
+            },
+            transform: Transform::from_xyz(4.0, 8.0, 4.0),
+            ..default()
+        })
+        .insert(Name::new("Light"));
+
+    //spawn a cube mesh
+    commands
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
+            material: material.add(Color::rgb(0.8, 0.7, 0.8).into()),
+            transform: Transform::from_xyz(10.0, 0.5, 0.0),
+            ..Default::default()
+        })
+        .insert(Name::new("Cube"));
 }
 
 
