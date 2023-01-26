@@ -3,8 +3,12 @@ use bevy::input::keyboard::*;
 use bevy::input::mouse::*;
 
 mod player;
+mod network;
+mod ui;
 
 use player::player_controller::*;
+
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() {
     App::new()
@@ -25,6 +29,10 @@ fn main() {
         )
         .add_startup_system(init_scene)
         .add_plugin(PlayerControllerPlugin)
+        .add_plugin(WorldInspectorPlugin)
+        .add_plugin(network::network_main::NetworkPlugin)
+        .add_plugin(ui::main::MainUIPlugin)
+        // .add_plugin(network::chatbot::ChatbotPlugin)
         .run();
 }
 

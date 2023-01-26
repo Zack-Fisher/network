@@ -1182,6 +1182,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "compose"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19b14b67f40b0ae42d9009cd0e8c8df0a8392fd8c82373de99a2923f9468ad1b"
+
+[[package]]
 name = "concurrent-queue"
 version = "1.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2453,6 +2459,7 @@ dependencies = [
  "anyhow",
  "bevy",
  "bevy-inspector-egui",
+ "compose",
  "rand",
  "tch",
 ]

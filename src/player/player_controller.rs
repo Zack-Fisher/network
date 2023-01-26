@@ -15,22 +15,49 @@ impl Plugin for PlayerControllerPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct Player;
+
+#[derive(Component)]
+pub struct Health {
+    pub value: f32,
+}
+
+#[derive(Component)]
+pub struct Lifetime {
+    pub value: f32,
+}
+
 //this is the heart of the first-person camera controller
 //we initialize the camera and the player, the camera a child of the player mesh
 
 fn init_player(
     mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    //make the player's base and mesh
     commands
-        .spawn(Camera3dBundle {
-            transform: Transform::from_xyz(0.0, 0.0, 0.0).looking_at([1.0, 0.0, 1.0].into(), Vec3::Y),
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+            material: materials.add(Color::rgb(0.67, 0.84, 0.92).into()),
+            transform: Transform::from_xyz(-2.0, 0.5, 2.0),
             ..default()
-        });
+        })
+        .with_children(|parent| {
+            parent.spawn(Camera3dBundle {
+                //by default, the mesh faces toward the negative z-axis
+                transform: Transform::from_xyz(0.0, 0.0, 0.0).looking_at([0.0, 0.0, -1.0].into(), Vec3::Y),
+                ..default()
+            });
+        })
+        .insert(Player)
+        .insert(Health { value: 100.0 });
 }
 
 fn move_player(
     keyboard: Res<Input<KeyCode>>,
-    mut camera_query: Query<&mut Transform, With<Camera3d>>,
+    mut camera_query: Query<&mut Transform, With<Player>>,
     time: Res<Time>,
 ) {
     let mut camera = camera_query.single_mut();
