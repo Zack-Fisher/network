@@ -1,10 +1,12 @@
 use bevy::prelude::*;
-use bevy::input::keyboard::*;
-use bevy::input::mouse::*;
+use bevy_editor_pls::{prelude::*, Editor};
 
 mod player;
 mod network;
 mod ui;
+mod character;
+mod audio;
+mod utils;
 
 use player::player_controller::*;
 
@@ -27,12 +29,14 @@ fn main() {
                     }
                 )
         )
+        .add_plugin(EditorPlugin)
+        .add_plugin(utils::DefaultUtilPlugin)
         .add_startup_system(init_scene)
+        .add_plugin(network::NetworkPlugin)
         .add_plugin(PlayerControllerPlugin)
-        .add_plugin(WorldInspectorPlugin)
-        .add_plugin(network::network_main::NetworkPlugin)
         .add_plugin(ui::main::MainUIPlugin)
-        // .add_plugin(network::chatbot::ChatbotPlugin)
+        .add_plugin(character::CharacterPlugin)
+        .add_plugin(audio::bgm::BGMPlugin)
         .run();
 }
 
@@ -41,7 +45,16 @@ fn init_scene(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut material: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
+    commands
+        .spawn(
+            SceneBundle {
+                scene: asset_server.load("models/shit_care.glb#Scene0"),
+                ..default()
+            }
+        );
+
     commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Plane { size: 20.0 })),
         material: material.add(Color::rgb(0.9, 0.7, 0.3).into()),
@@ -71,42 +84,26 @@ fn init_scene(
             transform: Transform::from_xyz(10.0, 0.5, 0.0),
             ..Default::default()
         })
+        .insert(character::mover::Mover {speed: 0.01})
+        .insert(Name::new("Cube"));
+    
+    commands
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
+            material: material.add(Color::rgb(0.8, 0.7, 0.8).into()),
+            transform: Transform::from_xyz(5.0, 0.5, 0.0),
+            ..Default::default()
+        })
+        .insert(character::mover::Mover {speed: 0.01})
+        .insert(Name::new("Cube"));
+
+    commands
+        .spawn(PbrBundle {
+            mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
+            material: material.add(Color::rgb(0.8, 0.7, 0.8).into()),
+            transform: Transform::from_xyz(10.0, 0.5, 5.0),
+            ..Default::default()
+        })
+        .insert(character::mover::Mover {speed: 0.01})
         .insert(Name::new("Cube"));
 }
-
-
-//pass the event reader as a system parameter
-fn keyboard_input_system(
-    mut key_evr: EventReader<KeyboardInput>,
-) {
-    use bevy::input::ButtonState;
-
-    for ev in key_evr.iter() {
-        match ev.state {
-            ButtonState::Pressed => {
-                println!("Key press: {:?} ({})", ev.key_code, ev.scan_code);
-            }
-            ButtonState::Released => {
-                println!("Key release: {:?} ({})", ev.key_code, ev.scan_code);
-            }
-        }
-    }
-}
-
-fn mouse_input_system(
-    mut mouse_evr: EventReader<MouseButtonInput>,
-) {
-    use bevy::input::ButtonState;
-
-    for ev in mouse_evr.iter() {
-        match ev.state {
-            ButtonState::Pressed => {
-                println!("Mouse press: {:?}", ev.button);
-            }
-            ButtonState::Released => {
-                println!("Mouse release: {:?}", ev.button);
-            }
-        }
-    }
-}
-

@@ -19,6 +19,28 @@ fn ui_init(
     asset_server: Res<AssetServer>,
 ) {
     commands
+        .spawn(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..Default::default()
+            },
+            background_color: BackgroundColor(Color::rgba(0.0, 0.0, 1.0, 0.1)),
+            ..Default::default()
+        })
+        .with_children(|commands| {
+            commands
+                .spawn(TextBundle::from_section(
+                    "time",
+                    //recall, asset server loads from /assets
+                    TextStyle { font: asset_server.load("fonts/party.otf"), font_size: 100.0, color: Color::WHITE },
+                ))
+                .insert(Flashing { speed: 1.0 });
+        })
+        .insert(Name::new("mainUI"));
+
+    commands
         .spawn(
             TextBundle::from_section(
                 "time",

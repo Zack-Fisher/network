@@ -7,8 +7,9 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.68"
-bevy = "0.9.1"
+bevy = { version = "0.9.1", features = [ "bevy_audio", "mp3" ] }
 bevy-inspector-egui = "0.17.0"
+bevy_editor_pls = "0.2.0"
 compose = "0.1.0"
 rand = "0.8.5"
 tch = "0.10.1"
