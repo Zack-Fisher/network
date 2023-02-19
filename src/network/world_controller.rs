@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+        .add_plugin(network::NetworkPlugin)
 
 use tch::*;
 use tch::nn::*;

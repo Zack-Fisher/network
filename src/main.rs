@@ -2,11 +2,11 @@ use bevy::prelude::*;
 use bevy_editor_pls::{prelude::*, Editor};
 
 mod player;
-mod network;
 mod ui;
 mod character;
 mod audio;
 mod utils;
+mod physics;
 
 use player::player_controller::*;
 
@@ -29,14 +29,14 @@ fn main() {
                     }
                 )
         )
-        .add_plugin(EditorPlugin)
+        // .add_plugin(EditorPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
         .add_startup_system(init_scene)
-        .add_plugin(network::NetworkPlugin)
         .add_plugin(PlayerControllerPlugin)
         .add_plugin(ui::main::MainUIPlugin)
         .add_plugin(character::CharacterPlugin)
         .add_plugin(audio::bgm::BGMPlugin)
+        .add_plugin(physics::PhysicsPlugin)
         .run();
 }
 
