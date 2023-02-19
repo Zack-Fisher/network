@@ -9,7 +9,7 @@ impl Plugin for PhysicsPlugin {
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
             .add_plugin(RapierDebugRenderPlugin::default())
             .add_startup_system(setup_physics)
-            .add_system(print_ball_altitude);
+            .add_system(display_events);
     }
 }
 
@@ -27,8 +27,16 @@ fn setup_physics(mut commands: Commands) {
         .insert_bundle(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)));
 }
 
-fn print_ball_altitude(positions: Query<&Transform, With<RigidBody>>) {
-    for transform in positions.iter() {
-        println!("Ball altitude: {}", transform.translation.y);
+/* A system that displays the events. */
+fn display_events(
+    mut collision_events: EventReader<CollisionEvent>,
+    mut contact_force_events: EventReader<ContactForceEvent>,
+) {
+    for collision_event in collision_events.iter() {
+        println!("Received collision event: {:?}", collision_event);
+    }
+
+    for contact_force_event in contact_force_events.iter() {
+        println!("Received contact force event: {:?}", contact_force_event);
     }
 }

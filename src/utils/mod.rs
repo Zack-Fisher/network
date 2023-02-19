@@ -2,6 +2,8 @@ pub mod three;
 pub mod two;
 pub mod ui;
 
+pub mod print;
+
 use bevy::prelude::*;
 
 pub struct DefaultUtilPlugin;
