@@ -3,6 +3,8 @@ name = "network"
 version = "0.1.0"
 edition = "2021"
 
+
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 # Enable a small amount of optimization in debug mode
@@ -15,9 +17,10 @@ opt-level = 3
 
 [dependencies]
 anyhow = "1.0.68"
-bevy = { version = "0.9.1", features = [ "bevy_audio", "mp3", "dynamic" ] }
+bevy = { version = "0.9.1", features = [ "bevy_audio", "mp3" ] }
 bevy-inspector-egui = "0.17.0"
 bevy_editor_pls = "0.2.0"
 bevy_rapier3d = "0.20.0"
 compose = "0.1.0"
 rand = "0.8.5"
+serde = "1.0.152"

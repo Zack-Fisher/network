@@ -16,7 +16,7 @@ impl Plugin for PhysicsPlugin {
 fn setup_physics(mut commands: Commands) {
     /* Create the ground. */
     commands
-        .spawn(Collider::cuboid(100.0, 0.1, 100.0))
+        .spawn(Collider::cuboid(10.0, 0.1, 10.0))
         .insert_bundle(TransformBundle::from(Transform::from_xyz(0.0, -2.0, 0.0)));
 
     /* Create the bouncing ball. */

@@ -1,8 +1,13 @@
+use bevy::core::Zeroable;
 use bevy::prelude::*;
 use bevy::input::keyboard::*;
 use bevy::input::mouse::*;
 use bevy::input::gamepad::*;
 use bevy::input::Input;
+
+use crate::input::*;
+
+use bevy_rapier3d::prelude::*;
 
 //init the player_controller plugin
 pub struct PlayerControllerPlugin;
@@ -19,6 +24,7 @@ impl Plugin for PlayerControllerPlugin {
 #[derive(Component)]
 pub struct Player {
     pub speed: f32,
+    pub gravity_scale: f32,
 }
 
 #[derive(Component)]
@@ -62,7 +68,7 @@ fn init_player(
             .with_children(|parent| {
                 parent.spawn(Camera3dBundle {
                     //by default, the mesh faces toward the negative z-axis
-                    transform: Transform::from_xyz(0.0, 0.0, 3.0).looking_at([0.0, 0.0, -1.0].into(), Vec3::Y),
+                    transform: Transform::from_xyz(0.0, 2.0, 3.0).looking_at([0.0, -0.3, -1.0].into(), Vec3::Y),
                     ..default()
                 })
                 .insert(PlayerCamera)
@@ -71,18 +77,28 @@ fn init_player(
             .insert(Pivot)
             .insert(Name::new("camera pivot"));
         })
-        .insert(Player { speed: 5.0 })
+        .insert(RigidBody::KinematicPositionBased)
+        .insert(Collider::ball(0.5))
+        .insert(KinematicCharacterController::default())
+        .insert(GravityScale(2.0))
+        .insert(ExternalImpulse {
+            ..default()
+        })
+        .insert(Player { speed: 15.0, gravity_scale: 0.1 })
         .insert(Health { value: 100.0 });
 }
 
 fn move_player(
     keyboard: Res<Input<KeyCode>>,
-    mut player_query: Query<(&mut Transform, &Player)>,
+    mut player_query: Query<(&mut KinematicCharacterController, &Player)>,
     camera_query: Query<&GlobalTransform, (With<Pivot>, Without<Player>)>,
     time: Res<Time>,
+    mapping: Res<InputMapping>,
 ) {
-    let (mut player, player_comp) = player_query.single_mut();
+    let (mut player_kb, player_comp) = player_query.single_mut();
     let camera_tf = camera_query.single();
+
+    let gravity_vec = Vec3::new(0.0, -1.0 * player_comp.gravity_scale, 0.0);
 
     //this is a built-in function on bevy transforms.
     let mut forward = camera_tf.forward();
@@ -95,26 +111,32 @@ fn move_player(
     left = left.normalize();
 
     let speed = player_comp.speed;
-    let rotate_speed = 3.0;
 
-    if keyboard.pressed(KeyCode::W) {
-        player.translation += forward * time.delta_seconds() * speed;
+    let mut direction = Vec3::ZERO;
+
+    //consider using a direct import if doing lots of conversions, more terse
+    use crate::input::Action::*;
+
+    if keyboard.pressed(get_key(&mapping, MoveUp)) {
+        direction += forward * time.delta_seconds() * speed;
     }
-    if keyboard.pressed(KeyCode::S) {
-        player.translation -= forward * time.delta_seconds() * speed;
+    if keyboard.pressed(get_key(&mapping, MoveDown)) {
+        direction -= forward * time.delta_seconds() * speed;
     }
-    if keyboard.pressed(KeyCode::A) {
-        player.translation += left * time.delta_seconds() * speed;
+    if keyboard.pressed(get_key(&mapping, MoveLeft)) {
+        direction += left * time.delta_seconds() * speed;
     }
-    if keyboard.pressed(KeyCode::D) {
-        player.translation -= left * time.delta_seconds() * speed;
+    if keyboard.pressed(get_key(&mapping, MoveRight)) {
+        direction -= left * time.delta_seconds() * speed;
     }
-    if keyboard.pressed(KeyCode::Q) {
-        player.rotate_axis(Vec3::Y, rotate_speed * time.delta_seconds())
+
+    if keyboard.pressed(get_key(&mapping, PlayerJump)) {
+        direction += Vec3::new(0.0, 3.0, 0.0) * time.delta_seconds() * speed;
     }
-    if keyboard.pressed(KeyCode::E) {
-        player.rotate_axis(Vec3::Y, -rotate_speed * time.delta_seconds())
-    }
+
+    direction += gravity_vec;
+
+    player_kb.translation = Some(direction);
 }
 
 fn move_camera(

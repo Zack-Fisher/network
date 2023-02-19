@@ -5,6 +5,7 @@ mod player;
 mod ui;
 mod character;
 mod audio;
+mod input;
 mod utils;
 mod physics;
 
@@ -31,9 +32,10 @@ fn main() {
         )
         // .add_plugin(EditorPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
+        .add_plugin(input::InputPlugin)
         .add_startup_system(init_scene)
         .add_plugin(PlayerControllerPlugin)
-        .add_plugin(ui::main::MainUIPlugin)
+        // .add_plugin(ui::main::MainUIPlugin)
         .add_plugin(character::CharacterPlugin)
         .add_plugin(audio::bgm::BGMPlugin)
         .add_plugin(physics::PhysicsPlugin)
@@ -55,13 +57,6 @@ fn init_scene(
             }
         );
 
-    commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(shape::Plane { size: 20.0 })),
-        material: material.add(Color::rgb(0.9, 0.7, 0.3).into()),
-        transform: Transform::from_xyz(0.0, -0.5, 0.0),
-        ..Default::default()
-    });
-
     //spawn a light
 
     commands
@@ -75,35 +70,4 @@ fn init_scene(
             ..default()
         })
         .insert(Name::new("Light"));
-
-    //spawn a cube mesh
-    commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
-            material: material.add(Color::rgb(0.8, 0.7, 0.8).into()),
-            transform: Transform::from_xyz(10.0, 0.5, 0.0),
-            ..Default::default()
-        })
-        .insert(character::mover::Mover {speed: 0.01})
-        .insert(Name::new("Cube"));
-    
-    commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
-            material: material.add(Color::rgb(0.8, 0.7, 0.8).into()),
-            transform: Transform::from_xyz(5.0, 0.5, 0.0),
-            ..Default::default()
-        })
-        .insert(character::mover::Mover {speed: 0.01})
-        .insert(Name::new("Cube"));
-
-    commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 2.0 })),
-            material: material.add(Color::rgb(0.8, 0.7, 0.8).into()),
-            transform: Transform::from_xyz(10.0, 0.5, 5.0),
-            ..Default::default()
-        })
-        .insert(character::mover::Mover {speed: 0.01})
-        .insert(Name::new("Cube"));
 }
