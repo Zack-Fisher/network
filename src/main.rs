@@ -30,6 +30,7 @@ fn main() {
                     }
                 )
         )
+        .add_plugin(WorldInspectorPlugin)
         // .add_plugin(EditorPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
         .add_plugin(input::InputPlugin)

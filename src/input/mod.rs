@@ -5,6 +5,8 @@ use bevy::input::mouse::*;
 
 use serde::{Serialize, Deserialize};
 
+use bevy::window::CursorGrabMode;
+
 pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
@@ -12,6 +14,7 @@ impl Plugin for InputPlugin {
         app
             //modify this with the startup system
             .insert_resource(InputMapping {key_map: HashMap::new(), mouse_map: HashMap::new()})
+            .add_system(cursor_grab_system)
             .add_startup_system_to_stage(StartupStage::PreStartup, init_input_mapping);
     }
 }
@@ -75,4 +78,29 @@ fn insert_into_map
 )
 {
 
+}
+
+fn cursor_grab_system(
+    mut windows: ResMut<Windows>,
+    btn: Res<Input<MouseButton>>,
+    key: Res<Input<KeyCode>>,
+) {
+    let window = windows.get_primary_mut().unwrap();
+
+    if btn.just_pressed(MouseButton::Left) {
+        // if you want to use the cursor, but not let it leave the window,
+        // use `Confined` mode:
+        window.set_cursor_grab_mode(CursorGrabMode::Confined);
+
+        // for a game that doesn't use the cursor (like a shooter):
+        // use `Locked` mode to keep the cursor in one place
+        window.set_cursor_grab_mode(CursorGrabMode::Locked);
+        // also hide the cursor
+        window.set_cursor_visibility(false);
+    }
+
+    if key.just_pressed(KeyCode::Escape) {
+        window.set_cursor_grab_mode(CursorGrabMode::None);
+        window.set_cursor_visibility(true);
+    }
 }
