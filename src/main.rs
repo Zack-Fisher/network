@@ -12,6 +12,9 @@ mod physics;
 use player::player_controller::*;
 
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use rand::distributions::Standard;
+
+use utils::three::*;
 
 fn main() {
     App::new()
@@ -71,4 +74,17 @@ fn init_scene(
             ..default()
         })
         .insert(Name::new("Light"));
+
+    commands
+        .spawn(
+            PbrBundle {
+                mesh: meshes.add(Mesh::from(shape::Plane {size: 1.0})),
+                material: material.add(StandardMaterial {
+                    base_color: Color::rgb(1.0, 0.0, 1.0),
+                    ..default()
+                }),
+                ..default()
+            }
+        )
+        .insert(Billboard::Y_BILL);
 }

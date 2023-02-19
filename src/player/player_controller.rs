@@ -46,7 +46,7 @@ pub struct Lifetime {
 pub struct Pivot;
 
 #[derive(Component)]
-struct PlayerCamera {
+pub struct PlayerCamera {
     //the z-clamp params, in radians
     x_min: f32,
     x_max: f32,
