@@ -70,7 +70,7 @@ fn init_player(
         .spawn(PbrBundle {
             mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
             material: materials.add(Color::rgb(0.67, 0.84, 0.92).into()),
-            transform: Transform::from_xyz(-2.0, 0.5, 2.0),
+            transform: Transform::from_xyz(-4.0, 0.5, 4.0),
             ..default()
         })
         //have a pivot node for the third person camera

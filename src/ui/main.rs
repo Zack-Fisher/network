@@ -39,17 +39,6 @@ fn ui_init(
                 .insert(Flashing { speed: 1.0 });
         })
         .insert(Name::new("mainUI"));
-
-    commands
-        .spawn(
-            TextBundle::from_section(
-                "time",
-                //recall, asset server loads from /assets
-                TextStyle { font: asset_server.load("fonts/party.otf"), font_size: 100.0, color: Color::WHITE },
-            )
-            .with_text_alignment(TextAlignment::TOP_CENTER)
-        )
-        .insert(Flashing { speed: 4.0 });
     
     commands
         .spawn(
