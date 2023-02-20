@@ -65,9 +65,7 @@ fn billboard_update(
     let cam_gtf = player_tf_q.single();
     for (board, mut bill_tf, bill_gtf) in bill_query.iter_mut()
     {
-        let goal = Transform::from_translation(bill_tf.translation)
+        bill_tf
             .look_at(cam_gtf.translation(), Vec3::Y);
-
-        // bill_tf = goal;
     }
 }

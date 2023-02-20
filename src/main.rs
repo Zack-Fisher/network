@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_editor_pls::{prelude::*, Editor};
 
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+
 mod player;
 mod ui;
 mod character;
@@ -15,6 +17,8 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use rand::distributions::Standard;
 
 use utils::three::*;
+
+use bevy_framepace::FramepacePlugin;
 
 fn main() {
     App::new()
@@ -34,6 +38,11 @@ fn main() {
                 )
         )
         .add_plugin(WorldInspectorPlugin)
+        .add_plugin(LogDiagnosticsPlugin::default())
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        //limits to 60 by default.
+        //settings.Limiter = Limiter::from_framerate(x), sets framerate to x.
+        .add_plugin(FramepacePlugin)
         // .add_plugin(EditorPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
         .add_plugin(input::InputPlugin)

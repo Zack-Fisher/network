@@ -3,7 +3,6 @@ use std::collections::*;
 use bevy::input::keyboard::*;
 use bevy::input::mouse::*;
 
-use serde::{Serialize, Deserialize};
 
 use bevy::window::CursorGrabMode;
 
