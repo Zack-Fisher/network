@@ -67,5 +67,7 @@ fn billboard_update(
     {
         let goal = Transform::from_translation(bill_tf.translation)
             .look_at(cam_gtf.translation(), Vec3::Y);
+
+        // bill_tf = goal;
     }
 }
