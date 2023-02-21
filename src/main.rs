@@ -38,8 +38,8 @@ fn main() {
                     }
                 )
         )
-        .add_plugin(EditorPlugin)
-        // .add_plugin(WorldInspectorPlugin)
+        // .add_plugin(EditorPlugin)
+        .add_plugin(WorldInspectorPlugin)
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         //limits to 60 by default.
@@ -48,13 +48,13 @@ fn main() {
         .add_plugin(utils::DefaultUtilPlugin)
         .add_plugin(input::InputPlugin)
         .add_plugin(world_obj::WorldObjectPlugin)
-        .add_startup_system(init_scene)
         .add_plugin(PlayerControllerPlugin)
         // .add_plugin(ui::main::MainUIPlugin)
         .add_plugin(character::CharacterPlugin)
         .add_plugin(audio::bgm::BGMPlugin)
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(TestingPlugin)
+        .add_startup_system(init_scene)
         .run();
 }
 
@@ -66,6 +66,8 @@ impl Plugin for TestingPlugin {
         app
             .add_startup_system(init_timer)
             .add_startup_system(init_flag)
+            .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
+            .add_system(anim_glb)
             ;
     }
 }
@@ -88,7 +90,57 @@ fn init_flag(
 )
 {
     world_obj::racetimer::build_flag(&mut commands, &mut material, &mut meshes);
+    info!("initializing flag");
 }
+
+//might have multiple animations on one glb.
+#[derive(Resource)]
+struct Animations(Vec<Handle<AnimationClip>>);
+
+fn init_glb_tester(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+)
+{
+    commands.insert_resource(Animations(vec![
+        asset_server.load("models/bouncy#Animation0")
+    ]));
+
+    let gltf_handle = asset_server.load("models/bouncy.glb#Scene0");
+    commands
+        .spawn(
+            SceneBundle {
+                scene: gltf_handle.clone(),
+                transform: Transform::from_xyz(2.0, 1.0, 2.0),
+                ..default()
+            }
+        );
+}
+
+//Local<T> is a local system variable, that gets passed between system calls. 
+//neat.
+fn anim_glb(
+    mut player_q: Query<&mut AnimationPlayer>,
+    animations: Res<Animations>,
+    mut done: Local<bool>,
+)
+{
+    //reference Local system scoped variables with the * syntax. i guess it's passed around with a box pointer?
+    if !*done {
+        //if let scope!!!!
+        //"do this if it returns a value." >> only for option types.
+        for mut player in player_q.iter_mut() {
+            //player the animation directly from the handle, from the asset server. "play" them on an AnimationPlayer component.
+            //load the animation handle vec with .0 (loads as a tuple, i guess) then index the handle vector with [0]
+            info!("play animation");
+            info!("{:?}", animations.0);
+            player.play(animations.0[0].clone_weak()).repeat();
+            *done = true;
+        }
+    }
+}
+
+use bevy_rapier3d::prelude::*;
 
 fn init_scene(
     mut commands: Commands,
@@ -96,13 +148,30 @@ fn init_scene(
     mut material: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
-    commands
-        .spawn(
-            SceneBundle {
-                scene: asset_server.load("models/shit_care.glb#Scene0"),
-                ..default()
-            }
-        );
+    // let scene_handle = asset_server.load("models/bumpymap_test.glb#Scene0");
+    // let mesh: Handle<Mesh> = asset_server.load("models/bumpymap_test.glb#Mesh0/Primitive0");
+
+    // let mut mesh_val = None;
+    // while mesh_val.is_none() {
+    //     match meshes.get(&mesh) {
+    //         Some(val) => {
+    //             mesh_val = Some(val);
+    //         }
+    //         None => {
+
+    //         }
+    //     }
+    //     info!("looping");
+    // }
+
+    // commands
+    //     .spawn(
+    //         SceneBundle {
+    //             scene: scene_handle,
+    //             ..default()
+    //         }
+    //     )
+    //     .insert(Collider::from_bevy_mesh(mesh_val.unwrap(), &ComputedColliderShape::TriMesh).unwrap());
 
     //spawn a light
 

@@ -17,8 +17,15 @@ impl Plugin for TimerPlugin {
 }
 
 #[derive(Component)]
+struct Race {
+    timer: Box<TimerPrefab>,
+    flag: Box<FlagPrefab>,
+}
+
+#[derive(Component)]
 struct TimerPrefab {
-    init_time: SystemTime,
+    //just keep accumulating the deltatime
+    curr_time: f32,
     //when the process hears a flag "complete" event, flip this and stop updating the timer.
     is_complete: bool,
 }
@@ -50,7 +57,7 @@ pub fn build_timer (
                 ..default()
             },
             TimerPrefab {
-                init_time: SystemTime::now(),
+                curr_time: 0.0,
                 is_complete: false,
             },
             Name::new("timer"),
@@ -61,15 +68,18 @@ fn timer_process (
     mut timer_q: Query<(&mut Text, &mut TimerPrefab)>,
     asset_server: Res<AssetServer>,
     mut flag_evr: EventReader<FlagEvent>,
+    time: Res<Time>,
 )
 {
     for (mut text_c, mut timer_c) in timer_q.iter_mut() {
         //just freeze processing entirely if the timer_c happens to flag completed
         if timer_c.is_complete {return;}
 
+        timer_c.curr_time += time.delta_seconds();
+
         text_c.sections = vec![
             TextSection {
-                value: format!("{}", get_time(timer_c.init_time)),
+                value: format!("{}", timer_c.curr_time),
                 style: TextStyle {
                     font: asset_server.load("fonts/roboto.ttf"),
                     font_size: 100.0,
@@ -85,16 +95,6 @@ fn timer_process (
             timer_c.is_complete = true;
         }
     }
-}
-
-fn get_time(init_time: SystemTime) -> String
-{
-    let curr_time = SystemTime::now();
-    let return_time = curr_time.duration_since(init_time);
-
-    let return_seconds = return_time.unwrap().as_millis();
-
-    return format!("{}", return_seconds);
 }
 
 #[derive(Component)]
