@@ -14,10 +14,14 @@ pub struct PlayerControllerPlugin;
 
 impl Plugin for PlayerControllerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(init_player)
+        app
+            .add_event::<PlayerDeathEvent>()
+            .add_event::<PlayerHealthEvent>()
+            .add_startup_system(init_player)
             .add_system(read_player_collisions)
             .add_system(move_camera)
-            .add_system(move_player);
+            .add_system(move_player)
+            ;
     }
 }
 
@@ -29,7 +33,8 @@ pub struct Player {
 }
 
 #[derive(Component)]
-pub struct Health {
+pub struct PlayerHealth {
+    pub max_health: f32,
     pub value: f32,
 }
 
@@ -108,7 +113,7 @@ fn init_player(
             gravity_scale: 0.1,
             is_jumping: false,
         })
-        .insert(Health { value: 100.0 })
+        .insert(PlayerHealth { max_health: 100.0, value: 100.0 })
         .insert(Name::new("skater boy"));
 }
 
@@ -223,4 +228,57 @@ fn set_jumping_false_if_touching_floor(
     event: &CharacterCollision,
 ) {
     player.is_jumping = false;
+}
+
+#[derive(Reflect)]
+pub enum PlayerHealthEventType {
+    Damage,
+    Healing,
+}
+
+pub struct PlayerHealthEvent {
+    ev_type: PlayerHealthEventType,
+    value: f32,
+}
+
+fn player_health_process (
+    mut health_evr: EventReader<PlayerHealthEvent>,
+    mut health_q: Query<&mut PlayerHealth, With<Player>>,
+
+    mut death_evr: EventWriter<PlayerDeathEvent>,
+)
+{
+    let mut health_c = health_q.single_mut();
+
+    for ev in health_evr.iter() {
+        match ev.ev_type {
+            PlayerHealthEventType::Damage => {
+                health_c.value -= ev.value;
+
+                if health_c.value <= 0.0 {
+                    death_evr.send(PlayerDeathEvent{});
+                }
+            }
+            PlayerHealthEventType::Healing => {
+                health_c.value += ev.value;
+
+                if health_c.value >= health_c.max_health {
+                    health_c.value = health_c.max_health;
+                }
+            }
+        }
+    }
+}
+
+pub struct PlayerDeathEvent {
+
+}
+
+fn player_death_process (
+    mut death_evr: EventReader<PlayerDeathEvent>,
+)
+{
+    for ev in death_evr.iter() {
+        println!("dead event");
+    }
 }

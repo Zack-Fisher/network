@@ -16,10 +16,24 @@ impl Plugin for TimerPlugin {
     }
 }
 
-#[derive(Component)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect)]
+enum RaceState {
+    Pre,
+    During,
+    Finished,
+}
+
+//have a Race struct that manages individual races, and have pointers to flags and timers.
+//flags are just components on arbitrary entities. flags are linked to races, and timers are linked to races.
+//"if the Race has RaceState finished, delete self."
+//manage local state the old fashioned way, with an enum.
+//arbitrary amounts of races possible, just keep building ontop.
+//how do we deal with the pointers, though? we can't just pass a typical & address ref, that isn't implemented for Components in bevy.
+
+//reflect allows us to pass basic pointers of struct instances around.
+#[derive(Component, Reflect)]
 struct Race {
-    timer: Box<TimerPrefab>,
-    flag: Box<FlagPrefab>,
+    state: RaceState,
 }
 
 #[derive(Component)]
