@@ -16,7 +16,7 @@ impl Plugin for TimerPlugin {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Reflect)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Reflect)]
 enum RaceState {
     Pre,
     During,
@@ -31,25 +31,61 @@ enum RaceState {
 //how do we deal with the pointers, though? we can't just pass a typical & address ref, that isn't implemented for Components in bevy.
 
 //reflect allows us to pass basic pointers of struct instances around.
-#[derive(Component, Reflect)]
-struct Race {
+#[derive(Component, Reflect, Copy, Clone)]
+pub struct Race {
     state: RaceState,
 }
 
+pub fn build_race (
+    mut commands: &mut Commands,
+    mut mesh: &mut ResMut<Assets<Mesh>>,
+    mut material: &mut ResMut<Assets<StandardMaterial>>,
+    asset_server: &Res<AssetServer>,
+)
+{
+    let race = Race {
+        state: RaceState::Pre,
+    };
+
+    //pass the same exact damn race pointer
+    //lfg
+    //
+    let timer_ent = build_timer(commands, mesh, material, asset_server, &race);
+    let flag_ent = build_flag(commands, material, mesh, &race);
+
+    //let the race be a god object? why not let the timer and flag asynchronously poll the race?
+    //how can we link the timer and flag with the same race? why are they even seperate?
+    //we might have multiple flags per race. also, we want to add the timer to the ui, not just its own thing.
+    //returning the e_id out of a prefab builder method is good practice i think.
+
+    let race = Race {
+        state: RaceState::Pre,
+    };
+
+    commands.spawn((
+        race
+    ));
+
+    //consider returning Box<>es to the components themselves, instead?
+}
+
+//the Race pointer has the same lifetime as the struct itself.
 #[derive(Component)]
-struct TimerPrefab {
+struct TimerPrefab<'a> {
     //just keep accumulating the deltatime
     curr_time: f32,
     //when the process hears a flag "complete" event, flip this and stop updating the timer.
     is_complete: bool,
+    race: &'a Race, 
 }
 
 pub fn build_timer (
     mut commands: &mut Commands,
     mut mesh: &mut ResMut<Assets<Mesh>>,
     mut material: &mut ResMut<Assets<StandardMaterial>>,
-    asset_server: &Res<AssetServer>
-)
+    asset_server: &Res<AssetServer>,
+    race: &Race,
+) -> Entity
 {
     commands
         .spawn((
@@ -73,13 +109,15 @@ pub fn build_timer (
             TimerPrefab {
                 curr_time: 0.0,
                 is_complete: false,
+                race,
             },
             Name::new("timer"),
-        ));
+        )).id()
 }
 
 fn timer_process (
-    mut timer_q: Query<(&mut Text, &mut TimerPrefab)>,
+    //'static: just keep this alive the entire duration of the program.
+    mut timer_q: Query<(&mut Text, &'static mut TimerPrefab)>,
     asset_server: Res<AssetServer>,
     mut flag_evr: EventReader<FlagEvent>,
     time: Res<Time>,
@@ -112,16 +150,18 @@ fn timer_process (
 }
 
 #[derive(Component)]
-struct FlagPrefab {
+struct FlagPrefab<'a> {
     //we can basically use prefab structs to define export variables, just like in any other visual game engine.
     pub trigger_radius: f32,
+    race: &'a Race,
 }
 
 pub fn build_flag(
     mut commands: &mut Commands,
     mut material: &mut ResMut<Assets<StandardMaterial>>,
     mut mesh: &mut ResMut<Assets<Mesh>>,
-)
+    race: &'static Race,
+) -> Entity
 {
     let mesh_handle = mesh.add(
         Mesh::from(shape::Cube { size: 2.0 })
@@ -142,15 +182,16 @@ pub fn build_flag(
                 ..default()
             },
             FlagPrefab {
-                trigger_radius: 3.0
+                trigger_radius: 3.0,
+                race,
             },
-        ));
+        )).id()
 }
 
 struct FlagEvent;
 
 fn flag_process (
-    flag_q: Query<(&GlobalTransform, &FlagPrefab)>,
+    flag_q: Query<(&GlobalTransform, &'static FlagPrefab)>,
     player_q: Query<&GlobalTransform, With<Player>>,
 
     mut flag_evw: EventWriter<FlagEvent>,

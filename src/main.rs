@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::world};
 use bevy_editor_pls::{prelude::*, Editor};
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -64,33 +64,21 @@ pub struct TestingPlugin;
 impl Plugin for TestingPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_startup_system(init_timer)
-            .add_startup_system(init_flag)
+            .add_startup_system(init_race)
             .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
             .add_system(anim_glb)
             ;
     }
 }
 
-fn init_timer(
+fn init_race(
     mut commands: Commands,
     mut material: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
 )
 {
-    world_obj::racetimer::build_timer(&mut commands, &mut meshes, &mut material, &asset_server);
-}
-
-fn init_flag(
-    mut commands: Commands,
-    mut material: ResMut<Assets<StandardMaterial>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    asset_server: Res<AssetServer>
-)
-{
-    world_obj::racetimer::build_flag(&mut commands, &mut material, &mut meshes);
-    info!("initializing flag");
+    world_obj::racetimer::build_race(&mut commands, &mut meshes, &mut material, &asset_server);
 }
 
 //might have multiple animations on one glb.
