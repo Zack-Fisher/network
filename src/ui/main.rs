@@ -1,18 +1,34 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::component};
 
 pub struct MainUIPlugin;
 
 impl Plugin for MainUIPlugin {
     fn build(&self, app: &mut App) {
        app
-        .add_startup_system(ui_init)
-        .add_system(text_color_system);
+        .add_startup_system_to_stage(StartupStage::PreStartup, ui_init)
+        .add_system(text_color_system)
+        .add_system(ui_add_process)
+        ;
     }
 }
 #[derive(Component)]
 pub struct Flashing {
     pub speed: f32,
 }
+
+//split the ui into sections, have public methods to add entities as children.
+//pass access to bundles? or ent_ids directly? all depends on how it works out
+//recall that .id() on an entity returns the Entity object itself, which is just an id with
+//a bunch of methods on it.
+
+//have a bunch of entities on the resource line, pull them and add the requested e_ids as children.
+#[derive(Resource)]
+pub struct TimerUIMain {
+    e: Entity,
+}
+
+//be sure to init these resources in their own init systems, if they don't exist and we try to request they
+//will panic.
 
 fn ui_init(
     mut commands: Commands,
@@ -50,6 +66,57 @@ fn ui_init(
             .with_text_alignment(TextAlignment::CENTER_RIGHT)
         );
         
+    let timer_e_id = commands
+        .spawn(
+            NodeBundle {
+                ..default()
+            },
+        ).id();
+
+    let ui_mains = UIMains {
+        e_timer: timer_e_id,
+    };
+
+    commands.insert_resource(ui_mains);
+}
+
+//register all the main component ids to attach to, then query it in the adder system
+#[derive(Component, Resource)]
+struct UIMains {
+    e_timer: Entity,
+}
+
+pub enum UIType {
+    Timer,
+}
+
+//pass e_id and ui main type
+pub struct UIAddEvent {
+    t: UIType,
+    entity: Entity,
+}
+
+fn ui_add_process (
+    mut add_evr: EventReader<UIAddEvent>,
+    mut commands: Commands,
+
+    ui_mains: Res<UIMains>,
+)
+{
+    for ev in add_evr.iter()
+    {
+        let target: Entity;
+        match ev.t {
+            UIType::Timer => {
+                target = ui_mains.e_timer;
+            }
+        }
+
+        //push_children to the entity commands object in particular.
+        let mut e_commands = commands.entity(target);
+
+        e_commands.push_children(&[ev.entity]);
+    }
 }
 
 //make all the damn text flash different colors

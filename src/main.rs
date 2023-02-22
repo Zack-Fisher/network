@@ -71,14 +71,17 @@ impl Plugin for TestingPlugin {
     }
 }
 
+use world_obj::racetimer::*;
+
 fn init_race(
     mut commands: Commands,
     mut material: ResMut<Assets<StandardMaterial>>,
     mut meshes: ResMut<Assets<Mesh>>,
     asset_server: Res<AssetServer>,
+    mut active_race: ResMut<Race>,
 )
 {
-    world_obj::racetimer::build_race(&mut commands, &mut meshes, &mut material, &asset_server);
+    world_obj::racetimer::build_race(&mut commands, &mut meshes, &mut material, &asset_server, &mut active_race);
 }
 
 //might have multiple animations on one glb.
