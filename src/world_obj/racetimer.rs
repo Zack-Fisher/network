@@ -1,5 +1,7 @@
 use bevy::{prelude::*};
 
+use crate::ui::main::*;
+
 use std::time::{SystemTime, Duration};
 
 use crate::player::player_controller::Player;
@@ -46,6 +48,7 @@ pub fn build_race (
     mut material: &mut ResMut<Assets<StandardMaterial>>,
     asset_server: &Res<AssetServer>,
     active_race: &mut ResMut<Race>,
+    mut ui_evw: &mut EventWriter<UIAddEvent>,
 )
 {
     active_race.state = RaceState::During;
@@ -53,7 +56,7 @@ pub fn build_race (
     //pass the same exact damn race pointer
     //lfg
     //
-    let timer_ent = build_timer(commands, mesh, material, asset_server);
+    let timer_ent = build_timer(commands, mesh, material, asset_server, ui_evw);
     let flag_ent = build_flag(commands, material, mesh);
 
     //let the race be a god object? why not let the timer and flag asynchronously poll the race?
@@ -93,9 +96,9 @@ pub fn build_timer (
     mut mesh: &mut ResMut<Assets<Mesh>>,
     mut material: &mut ResMut<Assets<StandardMaterial>>,
     asset_server: &Res<AssetServer>,
+    mut ui_evw: &mut EventWriter<UIAddEvent>
 ) -> Entity
 {
-    use crate::ui::main::*;
 
     let timer_e_id = commands
         .spawn((
@@ -123,7 +126,11 @@ pub fn build_timer (
             Name::new("timer"),
         )).id();
 
+    //what is the most efficient way to pass the evwriter UIMain to here?
     
+    //this does not displace the reference?
+    //i guess Entity implements Copy?
+    ui_evw.send(UIAddEvent {t: UIType::Timer, entity: timer_e_id});
     
     timer_e_id
 }

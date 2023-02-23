@@ -92,10 +92,12 @@ pub enum UIType {
 
 //pass e_id and ui main type
 pub struct UIAddEvent {
-    t: UIType,
-    entity: Entity,
+    pub t: UIType,
+    pub entity: Entity,
 }
 
+//how can i pass a reference to the UIAddEvent Reader to the callers?
+//i need react-style useContext hooks that pass down props to child systems.
 fn ui_add_process (
     mut add_evr: EventReader<UIAddEvent>,
     mut commands: Commands,
