@@ -1,4 +1,4 @@
-use bevy::{prelude::*};
+use bevy::{prelude::*, ecs::event::Event};
 
 use crate::ui::main::*;
 
@@ -11,8 +11,14 @@ pub struct TimerPlugin;
 impl Plugin for TimerPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_event::<FlagEvent>()
             .insert_resource(Race { state: RaceState::Pre })
+            .add_event::<TimerPrefab>()
+            .add_event::<FlagPrefab>()
+            .add_event::<Race>()
+            .add_event::<RaceEvent>()
+            .add_system(build_timer)
+            .add_system(build_flag)
+            .add_system(build_race)
             .add_system(timer_process)
             .add_system(flag_process)
             .add_system(race_process)
@@ -35,36 +41,33 @@ pub enum RaceState {
 //how do we deal with the pointers, though? we can't just pass a typical & address ref, that isn't implemented for Components in bevy.
 
 //reflect allows us to pass basic pointers of struct instances around.
+//WAIT! just use the prefab itself as the event struct that we pass around!!!
 #[derive(Component, Reflect, Copy, Clone, Resource)]
 pub struct Race {
-    state: RaceState,
+    pub state: RaceState,
 }
 
 //just have one active race for now.
 
-pub fn build_race (
-    mut commands: &mut Commands,
-    mut mesh: &mut ResMut<Assets<Mesh>>,
-    mut material: &mut ResMut<Assets<StandardMaterial>>,
-    asset_server: &Res<AssetServer>,
-    active_race: &mut ResMut<Race>,
-    mut ui_evw: &mut EventWriter<UIAddEvent>,
+//follow this event builder pattern for prefabs. can probably be automated later.
+fn build_race (
+    mut active_race: ResMut<Race>,
+
+    //grab the evr to itself, just make one for each ev in self_evr.iter()
+    mut self_evr: EventReader<Race>,
+
+    mut flagp_evw: EventWriter<FlagPrefab>,
+    mut timerp_evw: EventWriter<TimerPrefab>,
 )
 {
-    active_race.state = RaceState::During;
+    for ev in self_evr.iter() {
+        //copy the values into the active one
+        active_race.state = ev.state;
 
-    //pass the same exact damn race pointer
-    //lfg
-    //
-    let timer_ent = build_timer(commands, mesh, material, asset_server, ui_evw);
-    let flag_ent = build_flag(commands, material, mesh);
-
-    //let the race be a god object? why not let the timer and flag asynchronously poll the race?
-    //how can we link the timer and flag with the same race? why are they even seperate?
-    //we might have multiple flags per race. also, we want to add the timer to the ui, not just its own thing.
-    //returning the e_id out of a prefab builder method is good practice i think.
-
-    //consider returning Box<>es to the components themselves, instead?
+        flagp_evw.send(FlagPrefab{ trigger_radius: 1.0 });
+        //figure out a better way to skip initting curr_time to 0.0, this is clunky.
+        timerp_evw.send(TimerPrefab { curr_time: 0.0, is_complete: false });
+    }
 }
 
 pub struct RaceEvent {
@@ -83,63 +86,60 @@ fn race_process(
 }
 
 //the Race pointer has the same lifetime as the struct itself.
-#[derive(Component)]
-struct TimerPrefab {
+#[derive(Component, Clone, Copy)]
+pub struct TimerPrefab {
     //just keep accumulating the deltatime
-    curr_time: f32,
+    pub curr_time: f32,
     //when the process hears a flag "complete" event, flip this and stop updating the timer.
-    is_complete: bool,
+    pub is_complete: bool,
 }
 
-pub fn build_timer (
-    mut commands: &mut Commands,
-    mut mesh: &mut ResMut<Assets<Mesh>>,
-    mut material: &mut ResMut<Assets<StandardMaterial>>,
-    asset_server: &Res<AssetServer>,
-    mut ui_evw: &mut EventWriter<UIAddEvent>
-) -> Entity
-{
+fn build_timer (
+    mut commands: Commands,
+    asset_server: Res<AssetServer>, 
+    mut ui_evw: EventWriter<UIAddEvent>,
 
-    let timer_e_id = commands
-        .spawn((
-            TextBundle {
-                text: Text {
-                    sections: vec![
-                        TextSection {
-                            value: String::from("timer"),
-                            style: TextStyle {
-                                font: asset_server.load("fonts/party.otf"),
-                                font_size: 100.0,
-                                color: Color::WHITE,
-                            },
-                            ..default()
-                        }
-                    ],
+    mut self_evr: EventReader<TimerPrefab>,
+)
+{
+    for ev in self_evr.iter() {
+        let timer_e_id = commands
+            .spawn((
+                TextBundle {
+                    text: Text {
+                        sections: vec![
+                            TextSection {
+                                value: String::from("timer"),
+                                style: TextStyle {
+                                    font: asset_server.load("fonts/party.otf"),
+                                    font_size: 100.0,
+                                    color: Color::WHITE,
+                                },
+                                ..default()
+                            }
+                        ],
+                        ..default()
+                    },
                     ..default()
                 },
-                ..default()
-            },
-            TimerPrefab {
-                curr_time: 0.0,
-                is_complete: false,
-            },
-            Name::new("timer"),
-        )).id();
+                //the prefab needs to implement Copy and Clone, we just Copy the value over to the UI component then pass the ent.
+                //doesn't need to be a pointer, just needs the right values in the right places.
+                *ev,
+                Name::new("timer"),
+            )).id();
 
-    //what is the most efficient way to pass the evwriter UIMain to here?
-    
-    //this does not displace the reference?
-    //i guess Entity implements Copy?
-    ui_evw.send(UIAddEvent {t: UIType::Timer, entity: timer_e_id});
-    
-    timer_e_id
+        //what is the most efficient way to pass the evwriter UIMain to here?
+        
+        //this does not displace the reference?
+        //i guess Entity implements Copy?
+        ui_evw.send(UIAddEvent {t: UIType::Timer, entity: timer_e_id});
+    }
 }
 
 fn timer_process (
     //'static: just keep this alive the entire duration of the program.
     mut timer_q: Query<(&mut Text, &mut TimerPrefab)>,
     asset_server: Res<AssetServer>,
-    mut flag_evr: EventReader<FlagEvent>,
     time: Res<Time>,
     active_race: Res<Race>,
 )
@@ -162,40 +162,46 @@ fn timer_process (
     }
 }
 
-#[derive(Component)]
-struct FlagPrefab {
+#[derive(Component, Copy, Clone)]
+pub struct FlagPrefab {
     //we can basically use prefab structs to define export variables, just like in any other visual game engine.
     pub trigger_radius: f32,
 }
 
-pub fn build_flag(
-    mut commands: &mut Commands,
-    mut material: &mut ResMut<Assets<StandardMaterial>>,
-    mut mesh: &mut ResMut<Assets<Mesh>>,
-) -> Entity
+//pass access to structs and event readers/writers, not functions.
+
+fn build_flag(
+    mut commands: Commands,
+    mut material: ResMut<Assets<StandardMaterial>>,
+    mut mesh: ResMut<Assets<Mesh>>,
+
+    mut self_evr: EventReader<FlagPrefab>,
+)
 {
-    let mesh_handle = mesh.add(
-        Mesh::from(shape::Cube { size: 2.0 })
-    );
+    for ev in self_evr.iter() {
+        let mesh_handle = mesh.add(
+            Mesh::from(shape::Cube { size: 2.0 })
+        );
 
-    let mat_handle = material.add(
-        StandardMaterial {
-            base_color: Color::Rgba { red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0 },
-            ..default()
-        }
-    );
-
-    commands
-        .spawn((
-            PbrBundle {
-                mesh: mesh_handle,
-                material: mat_handle,
+        let mat_handle = material.add(
+            StandardMaterial {
+                base_color: Color::Rgba { red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0 },
                 ..default()
-            },
-            FlagPrefab {
-                trigger_radius: 3.0,
-            },
-        )).id()
+            }
+        );
+
+        commands
+            .spawn((
+                PbrBundle {
+                    mesh: mesh_handle,
+                    material: mat_handle,
+                    ..default()
+                },
+                //just pump the actual value here
+                //why does a deref not make rustc mad here lolol
+                *ev,
+            )).id();
+    }
 }
 
 struct FlagEvent;
@@ -214,7 +220,9 @@ fn flag_process (
         for (flag_gtf, flag_p) in flag_q.iter() {
             let distance = (player_gtf.translation() - flag_gtf.translation()).length();
 
-            race_evw.send(RaceEvent { new_state: RaceState::Finished })
+            if distance <= flag_p.trigger_radius {
+                race_evw.send(RaceEvent { new_state: RaceState::Finished });
+            }
         }
     }
 }

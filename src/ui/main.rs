@@ -5,6 +5,7 @@ pub struct MainUIPlugin;
 impl Plugin for MainUIPlugin {
     fn build(&self, app: &mut App) {
        app
+        .add_event::<UIAddEvent>()
         .add_startup_system_to_stage(StartupStage::PreStartup, ui_init)
         .add_system(text_color_system)
         .add_system(ui_add_process)

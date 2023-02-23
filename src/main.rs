@@ -47,9 +47,9 @@ fn main() {
         .add_plugin(FramepacePlugin)
         .add_plugin(utils::DefaultUtilPlugin)
         .add_plugin(input::InputPlugin)
+        .add_plugin(ui::main::MainUIPlugin)
         .add_plugin(world_obj::WorldObjectPlugin)
         .add_plugin(PlayerControllerPlugin)
-        // .add_plugin(ui::main::MainUIPlugin)
         .add_plugin(character::CharacterPlugin)
         .add_plugin(audio::bgm::BGMPlugin)
         .add_plugin(physics::PhysicsPlugin)
@@ -73,19 +73,11 @@ impl Plugin for TestingPlugin {
 
 use world_obj::racetimer::*;
 
-use ui::main::*;
-
 fn init_race(
-    mut commands: Commands,
-    mut material: ResMut<Assets<StandardMaterial>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    asset_server: Res<AssetServer>,
-    mut active_race: ResMut<Race>,
-    mut ui_evw: EventWriter<UIAddEvent>,
-
+    mut raceb_evw: EventWriter<Race>,
 )
 {
-    world_obj::racetimer::build_race(&mut commands, &mut meshes, &mut material, &asset_server, &mut active_race, &mut ui_evw);
+    raceb_evw.send(Race {state: RaceState::During});
 }
 
 //might have multiple animations on one glb.
