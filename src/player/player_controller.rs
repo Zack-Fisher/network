@@ -65,6 +65,10 @@ pub struct PlayerCamera {
     v_flip: f32,
 }
 
+//a camera that will be positioned overhead and projected onto an Image texture for viewing on the map.
+#[derive(Component)]
+struct MapCamera;
+
 fn build_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,

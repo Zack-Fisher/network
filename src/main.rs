@@ -11,6 +11,8 @@ mod input;
 mod utils;
 mod physics;
 mod world_obj;
+mod config;
+mod main_menu;
 
 use player::player_controller::*;
 
@@ -38,24 +40,34 @@ fn main() {
                     }
                 )
         )
-        // .add_plugin(EditorPlugin)
-        .add_plugin(WorldInspectorPlugin)
+        .add_state(GameState::MainMenu)
+
+        .add_plugin(EditorPlugin)
+        // .add_plugin(WorldInspectorPlugin)
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         //limits to 60 by default.
         //settings.Limiter = Limiter::from_framerate(x), sets framerate to x.
         .add_plugin(FramepacePlugin)
+        .add_plugin(config::ConfigPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
         .add_plugin(input::InputPlugin)
-        .add_plugin(ui::main::MainUIPlugin)
+        .add_plugin(ui::UIPlugin)
         .add_plugin(world_obj::WorldObjectPlugin)
         .add_plugin(PlayerControllerPlugin)
         .add_plugin(character::CharacterPlugin)
-        .add_plugin(audio::bgm::BGMPlugin)
+        .add_plugin(audio::SoundPlugin)
         .add_plugin(physics::PhysicsPlugin)
+        .add_plugin(main_menu::MainMenuPlugin)
         .add_plugin(TestingPlugin)
         .add_startup_system(init_scene)
         .run();
+}
+
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
+pub enum GameState {
+    MainMenu,
+    Playing,
 }
 
 //put dummy systems for the purpose of testing new stuff, when I don't know where to put it.
@@ -64,12 +76,36 @@ pub struct TestingPlugin;
 impl Plugin for TestingPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_startup_system(init_music)
             .add_startup_system(init_race)
             .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
             .add_startup_system(init_npc)
             .add_system(anim_glb)
             ;
     }
+}
+
+use audio::bgm::*;
+use config::*;
+
+fn init_music(
+    mut bgm_evw: EventWriter<PlayBGMEvent>,
+
+    mut configupdate_evw: EventWriter<UpdateConfig>,
+)
+{
+    configupdate_evw.send(
+        UpdateConfig {
+            bgm_volume: Some(0.5),
+        }
+    );
+    info!("starting music");
+    bgm_evw.send(
+        PlayBGMEvent {
+            speed: 1.5,
+            ..default()
+        }
+    );
 }
 
 use character::npc::*;

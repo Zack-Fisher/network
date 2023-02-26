@@ -125,7 +125,6 @@ fn race_process(
         }
     }
 
-    info!("{}", amount_hit);
 
     //because then, clearly the flags aren't readied up.
     if local_count < active_race.checkpoint_count {
@@ -302,7 +301,6 @@ fn flag_process (
     if active_race.state == RaceState::During {
         let player_gtf = player_q.single();
         for (flag_gtf, mut flag_p) in flag_q.iter_mut() {
-            info!("{:?}", flag_p);
             if flag_p.hit {
                 return;
             }

@@ -56,10 +56,11 @@ export interface InitOutput {
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h196f35bbe9379167: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h6811554799a52d3a: (a: number, b: number) => void;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h0c08d3227d9ab26c: (a: number, b: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h3fd6bd69fd44792e: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__ha30c52a8dbd2b357: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h0366b8ee74f98375: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h87144c96c33c2802: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h484b248fbceb1fa1: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hd4fb65241554bd9d: (a: number, b: number, c: number) => void;
   readonly __wbindgen_free: (a: number, b: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
   readonly __wbindgen_start: () => void;
