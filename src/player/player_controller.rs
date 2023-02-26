@@ -17,7 +17,7 @@ impl Plugin for PlayerControllerPlugin {
         app
             .add_event::<PlayerDeathEvent>()
             .add_event::<PlayerHealthEvent>()
-            .add_startup_system(init_player)
+            .add_startup_system(build_player)
             .add_system(read_player_collisions)
             .add_system(move_camera)
             .add_system(move_player)
@@ -65,16 +65,16 @@ pub struct PlayerCamera {
     v_flip: f32,
 }
 
-fn init_player(
+fn build_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    server: Res<AssetServer>,
 ) {
     //make the player's base and mesh
     commands
-        .spawn(PbrBundle {
-            mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-            material: materials.add(Color::rgb(0.67, 0.84, 0.92).into()),
+        .spawn(SceneBundle {
+            scene: server.load("models/character/Default.glb#Scene0"),
             transform: Transform::from_xyz(-4.0, 0.5, 4.0),
             ..default()
         })

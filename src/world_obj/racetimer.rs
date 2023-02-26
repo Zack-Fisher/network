@@ -11,17 +11,31 @@ pub struct TimerPlugin;
 impl Plugin for TimerPlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(Race { state: RaceState::Pre })
+            .insert_resource(Race {
+                state: RaceState::Pre, 
+                checkpoint_count: 0,
+             })
+
+            //prefab builder events
             .add_event::<TimerPrefab>()
             .add_event::<FlagPrefab>()
-            .add_event::<Race>()
+            .add_event::<RaceBuilderEvent>()
+
+            //race mgmt event
             .add_event::<RaceEvent>()
+
+            //prefab builders, read event lines
             .add_system(build_timer)
             .add_system(build_flag)
             .add_system(build_race)
+
+            //prefab processes
             .add_system(timer_process)
             .add_system(flag_process)
             .add_system(race_process)
+            
+            //etc component procs
+            .add_system(outline_process)
             ;
     }
 }
@@ -40,11 +54,17 @@ pub enum RaceState {
 //arbitrary amounts of races possible, just keep building ontop.
 //how do we deal with the pointers, though? we can't just pass a typical & address ref, that isn't implemented for Components in bevy.
 
+pub struct RaceBuilderEvent {
+    pub state: RaceState,
+    pub checkpoints: Vec<FlagPrefab>,
+}
+
 //reflect allows us to pass basic pointers of struct instances around.
 //WAIT! just use the prefab itself as the event struct that we pass around!!!
-#[derive(Component, Reflect, Copy, Clone, Resource)]
+#[derive(Component, Resource)]
 pub struct Race {
     pub state: RaceState,
+    pub checkpoint_count: usize,
 }
 
 //just have one active race for now.
@@ -54,7 +74,7 @@ fn build_race (
     mut active_race: ResMut<Race>,
 
     //grab the evr to itself, just make one for each ev in self_evr.iter()
-    mut self_evr: EventReader<Race>,
+    mut self_evr: EventReader<RaceBuilderEvent>,
 
     mut flagp_evw: EventWriter<FlagPrefab>,
     mut timerp_evw: EventWriter<TimerPrefab>,
@@ -63,8 +83,12 @@ fn build_race (
     for ev in self_evr.iter() {
         //copy the values into the active one
         active_race.state = ev.state;
+        active_race.checkpoint_count = ev.checkpoints.len();
 
-        flagp_evw.send(FlagPrefab{ trigger_radius: 1.0 });
+        for flag in ev.checkpoints.iter() {
+            flagp_evw.send(flag.clone());
+        }
+
         //figure out a better way to skip initting curr_time to 0.0, this is clunky.
         timerp_evw.send(TimerPrefab { curr_time: 0.0, is_complete: false });
     }
@@ -77,11 +101,39 @@ pub struct RaceEvent {
 fn race_process(
     mut active_race: ResMut<Race>,
     mut race_evr: EventReader<RaceEvent>,
+
+    flag_q: Query<&FlagPrefab>,
 )
 {
     for ev in race_evr.iter()
     {
         active_race.state = ev.new_state;
+    }
+
+    let mut done = true;
+
+    let mut amount_hit: usize = 0;
+
+    let mut local_count: usize = 0;
+    for checkpoint in flag_q.iter() {
+        local_count += 1;
+
+        if !checkpoint.hit {
+            done = false;
+        } else {
+            amount_hit += 1;
+        }
+    }
+
+    info!("{}", amount_hit);
+
+    //because then, clearly the flags aren't readied up.
+    if local_count < active_race.checkpoint_count {
+        return;
+    }
+    
+    if done {
+        active_race.state = RaceState::Finished;
     }
 }
 
@@ -137,7 +189,6 @@ fn build_timer (
 }
 
 fn timer_process (
-    //'static: just keep this alive the entire duration of the program.
     mut timer_q: Query<(&mut Text, &mut TimerPrefab)>,
     asset_server: Res<AssetServer>,
     time: Res<Time>,
@@ -162,10 +213,17 @@ fn timer_process (
     }
 }
 
-#[derive(Component, Copy, Clone)]
+#[derive(Component, Copy, Clone, Debug)]
 pub struct FlagPrefab {
     //we can basically use prefab structs to define export variables, just like in any other visual game engine.
     pub trigger_radius: f32,
+    pub position: Transform,
+    pub hit: bool,
+}
+
+#[derive(Component)]
+pub struct Outline {
+    rot_speed: f32,
 }
 
 //pass access to structs and event readers/writers, not functions.
@@ -190,39 +248,83 @@ fn build_flag(
             }
         );
 
+
+        //the green little outside thing, make it transparent to show the radius. maybe add particles later.
+        let sphere_handle = mesh.add(
+            Mesh::from(shape::UVSphere {radius: ev.trigger_radius, sectors: 5, stacks: 5})
+        );
+
+        let sphere_mat_handle = material.add(
+            StandardMaterial {
+                alpha_mode: AlphaMode::Blend,
+                base_color: Color::rgba(0.1, 0.8, 0.1, 0.2),
+                ..default()
+            }
+        );
+
         commands
             .spawn((
                 PbrBundle {
                     mesh: mesh_handle,
                     material: mat_handle,
+                    transform: ev.position,
                     ..default()
                 },
                 //just pump the actual value here
-                //why does a deref not make rustc mad here lolol
-                *ev,
-            )).id();
+                ev.clone(),
+                Name::new("checkpoint"),
+            ))
+            ;
+
+        commands
+            .spawn(
+                PbrBundle {
+                    mesh: sphere_handle,
+                    material: sphere_mat_handle,
+                    transform: ev.position,
+                    ..default()
+                }
+            )
+            .insert(Outline {
+                rot_speed: 1.0
+            })
+            ;
     }
 }
 
-struct FlagEvent;
-
 fn flag_process (
-    flag_q: Query<(&GlobalTransform, &'static FlagPrefab)>,
+    mut flag_q: Query<(&GlobalTransform, &mut FlagPrefab)>,
     player_q: Query<&GlobalTransform, With<Player>>,
-
-    mut race_evw: EventWriter<RaceEvent>,
 
     active_race: Res<Race>,
 )
 {
     if active_race.state == RaceState::During {
         let player_gtf = player_q.single();
-        for (flag_gtf, flag_p) in flag_q.iter() {
+        for (flag_gtf, mut flag_p) in flag_q.iter_mut() {
+            info!("{:?}", flag_p);
+            if flag_p.hit {
+                return;
+            }
+
             let distance = (player_gtf.translation() - flag_gtf.translation()).length();
 
             if distance <= flag_p.trigger_radius {
-                race_evw.send(RaceEvent { new_state: RaceState::Finished });
+                flag_p.hit = true;
             }
         }
+    }
+}
+
+
+// helper component processes
+
+fn outline_process (
+    mut outline_q: Query<(&mut Transform, &Outline)>,
+)
+{
+    for (mut outline_tf, outline_c) in outline_q.iter_mut() {
+        outline_tf.rotate_y(0.05 * outline_c.rot_speed);
+        outline_tf.rotate_x(0.01 * outline_c.rot_speed);
     }
 }
