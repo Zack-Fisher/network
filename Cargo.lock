@@ -2686,7 +2686,11 @@ dependencies = [
  "bevy_kira_audio",
  "bevy_rapier3d",
  "compose",
+<<<<<<< HEAD
  "iyes_loopless",
+=======
+ "lazy_static",
+>>>>>>> 601855f620b406a70e1c71190a449883732f24f9
  "rand",
  "serde",
  "spin",

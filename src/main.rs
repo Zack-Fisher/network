@@ -86,10 +86,26 @@ fn init_npc(
 use world_obj::racetimer::*;
 
 fn init_race(
-    mut raceb_evw: EventWriter<Race>,
+    mut raceb_evw: EventWriter<RaceBuilderEvent>,
 )
 {
-    raceb_evw.send(Race {state: RaceState::During});
+    raceb_evw.send(
+        RaceBuilderEvent {
+            state: RaceState::During,
+            checkpoints: vec![
+                FlagPrefab {
+                    trigger_radius: 3.0,
+                    position: Transform::from_xyz(1.0, 0.0, 5.0),
+                    hit: false,
+                },
+                FlagPrefab {
+                    trigger_radius: 5.0,
+                    position: Transform::from_xyz(-4.0, 0.5, -3.0),
+                    hit: false,
+                },
+            ]
+        }
+    )
 }
 
 //might have multiple animations on one glb.
