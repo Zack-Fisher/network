@@ -66,9 +66,21 @@ impl Plugin for TestingPlugin {
         app
             .add_startup_system(init_race)
             .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
+            .add_startup_system(init_npc)
             .add_system(anim_glb)
             ;
     }
+}
+
+use character::npc::*;
+
+fn init_npc(
+    mut charb_evw: EventWriter<NPCPrefab>,
+)
+{
+    charb_evw.send(
+        NPCPrefab { name: String::from("john") }
+    );
 }
 
 use world_obj::racetimer::*;
