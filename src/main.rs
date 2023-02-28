@@ -1,5 +1,6 @@
 use bevy::{prelude::*, ecs::world};
 use bevy_editor_pls::{prelude::*, Editor};
+use big_brain::prelude::*;
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 
@@ -13,6 +14,7 @@ mod physics;
 mod world_obj;
 mod config;
 mod main_menu;
+mod load;
 
 use player::player_controller::*;
 
@@ -48,9 +50,11 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         //limits to 60 by default.
         //settings.Limiter = Limiter::from_framerate(x), sets framerate to x.
+        .add_plugin(BigBrainPlugin)
         .add_plugin(FramepacePlugin)
         .add_plugin(config::ConfigPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
+        .add_plugin(load::LoadPlugin)
         .add_plugin(input::InputPlugin)
         .add_plugin(ui::UIPlugin)
         .add_plugin(world_obj::WorldObjectPlugin)

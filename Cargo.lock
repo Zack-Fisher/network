@@ -1084,6 +1084,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "big-brain"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1a1c00b7ed8de3a19a03ccbee00a8f49d8eb165882279d07adb8ef6179ff3f4"
+dependencies = [
+ "bevy",
+ "big-brain-derive",
+]
+
+[[package]]
+name = "big-brain-derive"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6354e78f8cfa12cf2605827088676613a6f02f6b053379d60ffd7efcb944868c"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2694,6 +2715,7 @@ dependencies = [
  "bevy_gltf",
  "bevy_kira_audio",
  "bevy_rapier3d",
+ "big-brain",
  "bincode",
  "compose",
  "iyes_loopless",

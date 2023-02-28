@@ -55,7 +55,7 @@ fn build_npc(
     image.resize(size);
 
     //link the camera and ui nodes to the same render layer, to compartmentalize
-    let first_pass_layer = RenderLayers::layer(1);
+    let first_pass_layer = RenderLayers::layer(2);
 
     let image_handle = images.add(image);
 

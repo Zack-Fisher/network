@@ -35,6 +35,7 @@ pub enum Action {
     MoveDown,
     MoveUp,
     PlayerJump,
+    OpenMap,
 }
 
 //have to pass the mutable mapping from whatever system happens to call this. makes sense
@@ -69,6 +70,8 @@ fn init_input_mapping(
         .insert(Action::MoveRight, KeyCode::D);
     mapping.key_map
         .insert(Action::PlayerJump, KeyCode::Space);
+    mapping.key_map
+        .insert(Action::OpenMap, KeyCode::T);
 }
 
 fn insert_into_map

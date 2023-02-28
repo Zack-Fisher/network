@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_editor_pls::egui::ProgressBar;
-use bevy_gltf::Gltf;
+use bevy_gltf::*;
 use bevy_rapier3d::prelude::*;
 
 pub struct PhysicsPlugin;
@@ -8,7 +8,7 @@ pub struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_event::<BuildCollisionEvent>()
+            .add_event::<BuildLevelEvent>()
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
             .add_plugin(RapierDebugRenderPlugin::default())
             .add_startup_system(setup_physics)
@@ -30,7 +30,7 @@ fn setup_physics(mut commands: Commands) {
         .insert(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)));
 }
 
-pub struct BuildCollisionEvent {
+pub struct BuildLevelEvent {
     //load with the asset loader, pass to the build system.
     pub path: String,
 }
@@ -39,13 +39,50 @@ pub struct BuildCollisionEvent {
 //hopefully load this async on another thread, have a loading screen and only show when the whole level is properly initialized?
 fn gen_collisions(
     mut commands: Commands,
-    mut collbuild_evr: EventReader<BuildCollisionEvent>,
+    mut levelbuild_evr: EventReader<BuildLevelEvent>,
     server: Res<AssetServer>,
+
+    gltf: Res<Assets<Gltf>>,
+    gltf_mesh: Res<Assets<GltfMesh>>,
+    gltf_primitives: Res<Assets<GltfPrimitive>>,
+    mesh: Res<Assets<Mesh>>,
 )
 {
-    for ev in collbuild_evr.iter() {
-        let mesh: Handle<Mesh> = server.load(format!("{}{}", ev.path, "#Mesh0/Primitive0"));
-    }
+    //please for the love of god run this on another thread
+    //look at the waiting
+    
+    commands
+        .spawn(
+            SpatialBundle::default()
+        )
+        .with_children(
+            |children| {
+
+                for ev in levelbuild_evr.iter() {
+                    let level_gltf_handle: Handle<Gltf> = server.load(ev.path.clone());
+
+                    let mut meshes: Vec<Handle<GltfMesh>> = vec![];
+
+                    if let Some(level_gltf_object) = gltf.get(&level_gltf_handle) {
+                        for mesh_handle in level_gltf_object.meshes.clone() {
+                            if let Some(mesh_object) = gltf_mesh.get(&mesh_handle) {
+                                for prim in mesh_object.primitives.clone() {
+                                    if let Some(prim_mesh) = mesh.get(&prim.mesh) {
+                                        children
+                                            .spawn(Collider::from_bevy_mesh(prim_mesh, &ComputedColliderShape::TriMesh).unwrap())
+                                            ;
+                                    }
+                                }
+                            } 
+                        }
+                    }
+                }
+            }
+
+
+        )
+        ;
+
 }
 
 /* A system that displays the events. */

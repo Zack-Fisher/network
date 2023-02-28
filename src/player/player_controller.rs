@@ -1,9 +1,11 @@
 use bevy::core::Zeroable;
+use bevy::ecs::event::Event;
 use bevy::input::gamepad::*;
 use bevy::input::keyboard::*;
 use bevy::input::mouse::*;
 use bevy::input::Input;
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
 
 use crate::input::*;
 
@@ -17,6 +19,7 @@ impl Plugin for PlayerControllerPlugin {
         app
             .add_event::<PlayerDeathEvent>()
             .add_event::<PlayerHealthEvent>()
+
             .add_startup_system(build_player)
             .add_system(read_player_collisions)
             .add_system(move_camera)
@@ -69,12 +72,55 @@ pub struct PlayerCamera {
 #[derive(Component)]
 struct MapCamera;
 
+use bevy::render::render_resource::*;
+use crate::ui::map::*;
+
 fn build_player(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     server: Res<AssetServer>,
+
+    mut images: ResMut<Assets<Image>>,
+    mut mapinit_evw: EventWriter<MapInitEvent>,
 ) {
+    //these prefab builders are getting pretty beefy.
+    //it's not really easy to repeat and build chunks of entity, so we're just doing it all at once for now.
+    //we should find a better solution around this at some point.
+    let size = Extent3d {
+        width: 512,
+        height: 512,
+        ..default()
+    };
+
+    let mut image = Image {
+        texture_descriptor: TextureDescriptor {
+            label: None,
+            size,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Bgra8UnormSrgb,
+            mip_level_count: 1,
+            sample_count: 1,
+            usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
+                | TextureUsages::RENDER_ATTACHMENT,
+        },
+        ..default()
+    };
+
+    image.resize(size);
+
+    //link the camera and ui nodes to the same render layer, to compartmentalize
+    let first_pass_layer = RenderLayers::layer(1);
+
+    let image_handle = images.add(image);
+
+    mapinit_evw.send(
+        MapInitEvent {
+            image_handle: image_handle.clone()
+        }
+    );
+
     //make the player's base and mesh
     commands
         .spawn(SceneBundle {
@@ -97,8 +143,8 @@ fn build_player(
                         .insert(PlayerCamera {
                             x_max: 0.25,
                             x_min: -0.25,
-                            h_sensitivity: 0.3,
-                            v_sensitivity: 0.3,
+                            h_sensitivity: 1.0,
+                            v_sensitivity: 2.0,
                             h_flip: -1.0,
                             v_flip: -1.0
                         })
@@ -106,6 +152,29 @@ fn build_player(
                 })
                 .insert(Pivot)
                 .insert(Name::new("camera pivot"));
+
+            //spawn the map camera high up in the sky
+            //on that birdseye i guess
+            spatial_parent
+                .spawn(
+                    Camera3dBundle {
+                        transform: Transform::from_xyz(0.0, 30.0, 0.0)
+                            .looking_at(Vec3::ZERO, Vec3::X),
+                        camera: Camera {
+                            priority: -1,
+                            //render right onto the handle that we passed to that Map module.
+                            target: bevy::render::camera::RenderTarget::Image(image_handle.clone()),
+                            ..default()
+                        },
+                        ..default()
+                    }
+                )
+                .insert(MapCamera)
+                //spawn it on the right rendering layer?
+                //still not entirely sure what this accomplishes.
+                .insert(first_pass_layer)
+                .insert(Name::new("player's map camera"))
+                ;
         })
         .insert(RigidBody::KinematicPositionBased)
         .insert(Collider::ball(0.5))

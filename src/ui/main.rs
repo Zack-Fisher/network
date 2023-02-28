@@ -1,4 +1,4 @@
-use bevy::{prelude::*, ecs::component};
+use bevy::{prelude::*, ecs::component, render::view::RenderLayers};
 
 pub struct MainUIPlugin;
 
@@ -35,44 +35,17 @@ fn ui_init(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    commands
-        .spawn(NodeBundle {
-            style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            background_color: BackgroundColor(Color::rgba(0.0, 0.0, 1.0, 0.1)),
-            ..Default::default()
-        })
-        .with_children(|commands| {
-            commands
-                .spawn(TextBundle::from_section(
-                    "time",
-                    //recall, asset server loads from /assets
-                    TextStyle { font: asset_server.load("fonts/party.otf"), font_size: 100.0, color: Color::WHITE },
-                ))
-                .insert(Flashing { speed: 1.0 });
-        })
-        .insert(Name::new("mainUI"));
-    
-    commands
-        .spawn(
-            TextBundle::from_section(
-                "time",
-                //recall, asset server loads from /assets
-                TextStyle { font: asset_server.load("fonts/party.otf"), font_size: 100.0, color: Color::WHITE },
-            )
-            .with_text_alignment(TextAlignment::CENTER_RIGHT)
-        );
-        
+    let ui_layer = RenderLayers::layer(2);
+
     let timer_e_id = commands
         .spawn(
             NodeBundle {
                 ..default()
             },
-        ).id();
+        )
+        .insert(ui_layer)
+        .id()
+        ;
 
     let ui_mains = UIMains {
         e_timer: timer_e_id,
