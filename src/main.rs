@@ -1,6 +1,7 @@
 use bevy::{prelude::*, ecs::world};
 use bevy_editor_pls::{prelude::*, Editor};
 use big_brain::prelude::*;
+use bevy_egui::*;
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 
@@ -17,9 +18,6 @@ mod main_menu;
 mod load;
 
 use player::player_controller::*;
-
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use rand::distributions::Standard;
 
 use utils::three::*;
 
@@ -45,7 +43,6 @@ fn main() {
         .add_state(GameState::MainMenu)
 
         .add_plugin(EditorPlugin)
-        // .add_plugin(WorldInspectorPlugin)
         .add_plugin(LogDiagnosticsPlugin::default())
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         //limits to 60 by default.
@@ -64,7 +61,7 @@ fn main() {
         .add_plugin(physics::PhysicsPlugin)
         .add_plugin(main_menu::MainMenuPlugin)
         .add_plugin(TestingPlugin)
-        .add_startup_system(init_scene)
+
         .run();
 }
 
@@ -80,13 +77,28 @@ pub struct TestingPlugin;
 impl Plugin for TestingPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_startup_system(load_serialization_test)
+            .add_startup_system(init_scene)
             .add_startup_system(init_music)
-            .add_startup_system(init_race)
-            .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
+            // .add_startup_system(init_race)
+            // .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
             .add_startup_system(init_npc)
-            .add_system(anim_glb)
+            // .add_system(anim_glb)
             ;
     }
+}
+
+use load::*;
+
+fn load_serialization_test ()
+{
+    write_leveldata_to_file(
+        LevelData {
+            scene_path: String::from("models/level/leveltest.glb"),
+            name: String::from("leveltest"),
+        }, 
+        String::from("test.level")
+    );
 }
 
 use audio::bgm::*;

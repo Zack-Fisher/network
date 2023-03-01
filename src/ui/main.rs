@@ -1,4 +1,5 @@
 use bevy::{prelude::*, ecs::component, render::view::RenderLayers};
+use bevy_egui::EguiContext;
 
 pub struct MainUIPlugin;
 
@@ -6,7 +7,7 @@ impl Plugin for MainUIPlugin {
     fn build(&self, app: &mut App) {
        app
         .add_event::<UIAddEvent>()
-        .add_startup_system_to_stage(StartupStage::PreStartup, ui_init)
+        .add_startup_system(ui_init)
         .add_system(text_color_system)
         .add_system(ui_add_process)
         ;
@@ -35,15 +36,12 @@ fn ui_init(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let ui_layer = RenderLayers::layer(2);
-
     let timer_e_id = commands
         .spawn(
             NodeBundle {
                 ..default()
             },
         )
-        .insert(ui_layer)
         .id()
         ;
 

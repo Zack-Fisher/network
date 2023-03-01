@@ -1,8 +1,5 @@
 use bevy::prelude::*;
 use std::collections::*;
-use bevy::input::keyboard::*;
-use bevy::input::mouse::*;
-
 
 use bevy::window::CursorGrabMode;
 
@@ -11,10 +8,17 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<ChangeKeyMapEvent>()
+            .add_event::<ChangeMouseMapEvent>()
+
             //modify this with the startup system
             .insert_resource(InputMapping {key_map: HashMap::new(), mouse_map: HashMap::new()})
-            .add_system(cursor_grab_system)
-            .add_startup_system_to_stage(StartupStage::PreStartup, init_input_mapping);
+            // .add_system(cursor_grab_system)
+            .add_startup_system_to_stage(StartupStage::PreStartup, init_input_mapping)
+            .add_system(input_testers)
+            .add_system(insert_into_keymap)
+            .add_system(insert_into_mousemap)
+            ;
     }
 }
 
@@ -28,7 +32,7 @@ pub struct InputMapping {
 //action->one input.
 //try to map each action to one input, to avoid Nones and option garbage
 
-#[derive(Hash, PartialEq, Eq)]
+#[derive(Hash, PartialEq, Eq, Copy, Clone)]
 pub enum Action {
     MoveRight,
     MoveLeft,
@@ -36,6 +40,10 @@ pub enum Action {
     MoveUp,
     PlayerJump,
     OpenMap,
+    Interact,
+
+    //tester actions, not to be used in the actual game.
+    TestLoad,
 }
 
 //have to pass the mutable mapping from whatever system happens to call this. makes sense
@@ -72,14 +80,54 @@ fn init_input_mapping(
         .insert(Action::PlayerJump, KeyCode::Space);
     mapping.key_map
         .insert(Action::OpenMap, KeyCode::T);
+
+
+    //test mappings. remove in final build.
+    mapping.key_map
+        .insert(Action::TestLoad, KeyCode::P);
 }
 
-fn insert_into_map
+//map actions to keycodes. the system will take care of the rest, ideally.
+pub struct ChangeKeyMapEvent {
+    action: Action,
+    key: KeyCode,
+}
+
+//we NEED to make sure that the inserted action appears exactly one time in the keymapping, or we're in trouble.
+//do lots of silliness and tomfoolery here.
+fn insert_into_keymap
 (
-    mapping: Res<InputMapping>,
+    mut mapping: ResMut<InputMapping>,
+
+    mut changei_evr: EventReader<ChangeKeyMapEvent>,
 )
 {
+    for ev in changei_evr.iter() {
+        //jank, also only applies for keys now.
+        mapping.key_map.remove(&ev.action);
+        mapping.key_map.insert(ev.action, ev.key);
+    }
+}
 
+pub struct ChangeMouseMapEvent {
+    action: Action,
+    mouse_button: MouseButton,
+}
+
+//we NEED to make sure that the inserted action appears exactly one time in the keymapping, or we're in trouble.
+//do lots of silliness and tomfoolery here.
+fn insert_into_mousemap
+(
+    mut mapping: ResMut<InputMapping>,
+
+    mut changei_evr: EventReader<ChangeMouseMapEvent>,
+)
+{
+    for ev in changei_evr.iter() {
+        //jank, also only applies for keys now.
+        mapping.mouse_map.remove(&ev.action);
+        mapping.mouse_map.insert(ev.action, ev.mouse_button);
+    }
 }
 
 fn cursor_grab_system(
@@ -104,5 +152,20 @@ fn cursor_grab_system(
     if key.just_pressed(KeyCode::Escape) {
         window.set_cursor_grab_mode(CursorGrabMode::None);
         window.set_cursor_visibility(true);
+    }
+}
+
+use crate::load::*;
+
+//this is probably going to get bad. just please keep it encapsulated in the input module.
+fn input_testers (
+    keyboard: Res<Input<KeyCode>>,
+    mapping: Res<InputMapping>,
+
+    mut load_evw: EventWriter<LoadLevelEvent>,
+) {
+    if keyboard.just_pressed(get_key(&mapping, Action::TestLoad)) {
+        info!("running a test scene load");
+        load_evw.send(LoadLevelEvent::default());
     }
 }

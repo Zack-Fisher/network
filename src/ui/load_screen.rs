@@ -28,6 +28,8 @@ fn build_load_screen (
     server: Res<AssetServer>,
 )
 {
+    info!("building the loading screen");
+
     commands
         .spawn(
             NodeBundle {
@@ -70,6 +72,8 @@ fn destroy_load_screen (
     load_q: Query<Entity, With<LoadScreenMarker>>,
 )
 {
+    info!("destroying the loading screen");
+
     for load_ent in load_q.iter() {
         commands.entity(load_ent).despawn_recursive();
     }

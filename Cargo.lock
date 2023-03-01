@@ -267,37 +267,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1bbe6f9142de83d656fb45e9629bd7f3ede71d202439922bdf473814daceefe4"
 dependencies = [
  "bevy",
- "bevy-inspector-egui-derive 0.14.0",
+ "bevy-inspector-egui-derive",
  "bevy_egui 0.17.1",
  "image 0.23.14",
  "pretty-type-name",
-]
-
-[[package]]
-name = "bevy-inspector-egui"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8be4f9fa859e4840e7cbcc0ddf2c8a1441ff8f663c317769c5ccc70cdf13bcf2"
-dependencies = [
- "bevy-inspector-egui-derive 0.17.0",
- "bevy_app",
- "bevy_asset",
- "bevy_core",
- "bevy_core_pipeline",
- "bevy_ecs",
- "bevy_egui 0.19.0",
- "bevy_hierarchy",
- "bevy_log",
- "bevy_math",
- "bevy_pbr",
- "bevy_reflect",
- "bevy_render",
- "bevy_utils",
- "egui 0.20.1",
- "image 0.24.5",
- "once_cell",
- "pretty-type-name",
- "smallvec",
 ]
 
 [[package]]
@@ -305,17 +278,6 @@ name = "bevy-inspector-egui-derive"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8369516ed94a814a8794a1e75acbd53e4f250da8f851e75870501ca0e7f083b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "bevy-inspector-egui-derive"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97826e6225a5b56e77683e7b99418171f7531d48682b8531252dc6b8ef3e8113"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -510,7 +472,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da0a8e6726fd4f8d121cd8961e37461b221ee398b156a5a1d4255b11757cfd41"
 dependencies = [
  "bevy",
- "bevy-inspector-egui 0.14.0",
+ "bevy-inspector-egui",
  "indexmap",
 ]
 
@@ -521,7 +483,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be333fa060b088943e5fa3e839f9e87e1109e0896e17d11315446ddd2b2c0a9d"
 dependencies = [
  "bevy",
- "bevy-inspector-egui 0.14.0",
+ "bevy-inspector-egui",
  "bevy_editor_pls_core",
  "bevy_mod_debugdump",
  "bevy_mod_raycast",
@@ -2709,8 +2671,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bevy",
- "bevy-inspector-egui 0.17.0",
  "bevy_editor_pls",
+ "bevy_egui 0.19.0",
  "bevy_framepace",
  "bevy_gltf",
  "bevy_kira_audio",
@@ -2718,10 +2680,13 @@ dependencies = [
  "big-brain",
  "bincode",
  "compose",
+ "futures-lite",
  "iyes_loopless",
  "lazy_static",
  "rand",
  "serde",
+ "serde_derive",
+ "serde_json",
  "spin",
 ]
 

@@ -169,6 +169,10 @@ fn build_player(
                         ..default()
                     }
                 )
+                //hide the UI layer!!! a component!!! shocking development!!!
+                .insert(UiCameraConfig {
+                    show_ui: false,
+                })
                 .insert(MapCamera)
                 //spawn it on the right rendering layer?
                 //still not entirely sure what this accomplishes.
@@ -254,13 +258,6 @@ fn move_camera(
     let (mut camera_tf, camera_comp) = camera_query.single_mut();
 
     let rotate_speed = 3.0;
-
-    if keyboard.pressed(KeyCode::Q) {
-        pivot.rotate_axis(Vec3::Y, rotate_speed * time.delta_seconds())
-    }
-    if keyboard.pressed(KeyCode::E) {
-        pivot.rotate_axis(Vec3::Y, -rotate_speed * time.delta_seconds())
-    }
 
     for ev in motion_evr.iter() {
         pivot.rotate_axis(

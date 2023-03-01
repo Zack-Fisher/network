@@ -86,7 +86,7 @@ fn map_process(
 {
     use crate::input::Action::*;
 
-    if keyboard.pressed(get_key(&mapping, OpenMap)) {
+    if keyboard.just_pressed(get_key(&mapping, OpenMap)) {
         for mut vis_c in map_q.iter_mut() {
             vis_c.is_visible = !vis_c.is_visible;
         }

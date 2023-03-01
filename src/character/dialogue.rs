@@ -57,6 +57,8 @@ fn compute_hoverable_text(
         if distance <= hoverable_comp.activation_range
         {
             hoverable_comp.activated = true;
+        } else {
+            hoverable_comp.activated = false;
         }
     }
 }
