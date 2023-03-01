@@ -16,7 +16,9 @@ mod world_obj;
 mod config;
 mod main_menu;
 mod load;
+mod material;
 
+use material::CustomMaterial;
 use player::player_controller::*;
 
 use utils::three::*;
@@ -49,6 +51,7 @@ fn main() {
         //settings.Limiter = Limiter::from_framerate(x), sets framerate to x.
         .add_plugin(BigBrainPlugin)
         .add_plugin(FramepacePlugin)
+        .add_plugin(material::ShaderMaterialPlugin)
         .add_plugin(config::ConfigPlugin)
         .add_plugin(utils::DefaultUtilPlugin)
         .add_plugin(load::LoadPlugin)
@@ -78,6 +81,7 @@ impl Plugin for TestingPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_startup_system(load_serialization_test)
+            .add_startup_system(init_shader_test)
             .add_startup_system(init_scene)
             .add_startup_system(init_music)
             // .add_startup_system(init_race)
@@ -99,6 +103,31 @@ fn load_serialization_test ()
         }, 
         String::from("test.level")
     );
+}
+
+fn init_shader_test(
+    mut commands: Commands,
+
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut mat: ResMut<Assets<CustomMaterial>>,
+
+    server: Res<AssetServer>,
+)
+{
+    commands
+        .spawn(
+            MaterialMeshBundle {
+                mesh: meshes.add(Mesh::from(shape::Cube { size: 3.0 })),
+                material: mat.add(CustomMaterial {
+                    color: Color::MIDNIGHT_BLUE,
+                    color_texture: Some(server.load("textures/texture.png")),
+                    alpha_mode: AlphaMode::Blend,
+                }),
+                transform: Transform::from_xyz(1.0, 4.0, 1.0),
+                ..default()
+            }
+        )
+        ;
 }
 
 use audio::bgm::*;
