@@ -1,6 +1,4 @@
-use crate::level_instantiation::spawning::objects::level::Imported;
-use crate::level_instantiation::spawning::spawn::Despawn;
-use anyhow::{Context, Result};
+use crate::level_instantiation::spawning::objects::level::Imported; use crate::level_instantiation::spawning::spawn::Despawn; use anyhow::{Context, Result};
 use bevy::pbr::NotShadowCaster;
 use bevy::prelude::*;
 use regex::Regex;
