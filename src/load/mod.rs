@@ -58,6 +58,9 @@ pub fn write_leveldata_to_file(level_data: LevelData, path: String)
 use std::fs::File;
 use std::io::BufReader;
 
+//FILE IS NOT SUPPORTED ON WASM.
+//DO NOT USE IT IN PROD
+//how can we load arbitrary data from the assetserver?
 pub fn get_leveldata_from_file(path: String) -> Option<LevelData>
 {
     let file = File::open(&path).unwrap();

@@ -87,9 +87,28 @@ impl Plugin for TestingPlugin {
             // .add_startup_system(init_race)
             // .add_startup_system_to_stage(StartupStage::PreStartup, init_glb_tester)
             .add_startup_system(init_npc)
+            .add_startup_system(init_glb_scene)
             // .add_system(anim_glb)
             ;
     }
+}
+
+fn init_glb_scene (
+    mut commands: Commands,
+
+    server: Res<AssetServer>,
+)
+{
+    commands
+        .spawn(
+            SceneBundle {
+                scene: server.load("scenes/test.glb"),
+                transform: Transform::from_xyz(0.0, 0.0, 0.0),
+                ..default()
+            }
+        )
+        .insert(Name::new("try try again"))
+        ;
 }
 
 use load::*;
