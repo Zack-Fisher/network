@@ -79,7 +79,7 @@ fn load_world(
         commands
             .spawn(
                 SceneBundle {
-                    scene: server.load(serialized_level.scene_path.clone()),
+                    scene: server.load(format!("{}#Scene0", serialized_level.scene_path.clone())),
                     ..default()
                 }
             )
