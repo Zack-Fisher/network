@@ -1,5 +1,4 @@
 use crate::file_system_interaction::level_serialization::{CurrentLevel, WorldLoadRequest};
-use crate::level_instantiation::spawning::{DelayedSpawnEvent, GameObject, SpawnEvent};
 use crate::player_control::player_embodiment::Player;
 use crate::util::log_error::log_errors;
 use crate::world_interaction::condition::ActiveConditions;
@@ -63,7 +62,6 @@ fn handle_load_requests(
     mut commands: Commands,
     mut load_events: EventReader<GameLoadRequest>,
     mut loader: EventWriter<WorldLoadRequest>,
-    mut spawner: EventWriter<DelayedSpawnEvent>,
     mut dialog_event_writer: EventWriter<DialogEvent>,
 ) -> Result<()> {
     for load in load_events.iter() {
@@ -121,16 +119,6 @@ fn handle_load_requests(
             dialog_event_writer.send(dialog_event);
         }
         commands.insert_resource(save_model.conditions);
-
-        spawner.send(DelayedSpawnEvent {
-            tick_delay: 2,
-            event: SpawnEvent {
-                object: GameObject::Player,
-                transform: Transform {
-                    ..save_model.player_transform
-                },
-            },
-        });
     }
     Ok(())
 }

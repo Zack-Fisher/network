@@ -1,7 +1,4 @@
 use crate::file_system_interaction::asset_loading::LevelAssets;
-use crate::level_instantiation::spawning::{
-    SpawnTracker,
-};
 use crate::util::log_error::log_errors;
 use crate::world_interaction::condition::ActiveConditions;
 use crate::world_interaction::dialog::CurrentDialog;
@@ -10,7 +7,7 @@ use anyhow::{Context, Result};
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 
-use bevy_editor_pls::prelude::NotInScene;
+use bevy_editor_pls::prelude::InScene;
 use serde::{Deserialize, Serialize};
 
 pub struct LevelSerializationPlugin;
@@ -43,7 +40,6 @@ pub struct Protected;
 fn load_world(
     mut commands: Commands,
     mut load_requests: EventReader<WorldLoadRequest>,
-    current_spawn_query: Query<Entity, With<SpawnTracker>>,
     levels: Res<Assets<SerializedLevel>>,
     level_handles: Option<Res<LevelAssets>>,
     server: Res<AssetServer>,
@@ -68,6 +64,7 @@ fn load_world(
                     "Serialized level not found",
                 )
             })?;
+
         commands
             .spawn(
                 DynamicSceneBundle {
@@ -85,7 +82,6 @@ fn load_world(
                     ..default()
                 }
             )
-            .insert(NotInScene)
             .insert(Name::new("level static scene"))
             ;
 
@@ -93,13 +89,6 @@ fn load_world(
             .spawn(
                 Camera3dBundle::default()
             );
-
-        for entity in &current_spawn_query {
-            commands
-                .get_entity(entity)
-                .context("Failed to get entity while loading")?
-                .despawn_recursive();
-        }
 
         commands.insert_resource(CurrentLevel {
             scene: load_ev.filename.clone(),

@@ -1,6 +1,5 @@
 use crate::file_system_interaction::asset_loading::ConfigAssets;
 use crate::file_system_interaction::config::GameConfig;
-use crate::level_instantiation::spawning::objects::skydome::Skydome;
 use crate::player_control::actions::{ActionsFrozen, CameraAction};
 use crate::player_control::camera::focus::{set_camera_focus, switch_kind};
 use crate::util::log_error::log_errors;
@@ -125,7 +124,6 @@ impl Plugin for CameraPlugin {
                             .after(switch_kind),
                     )
                     .with_system(update_config.pipe(log_errors))
-                    .with_system(move_skydome.after(UpdateCameraTransformLabel)),
             );
     }
 }
@@ -219,19 +217,6 @@ fn update_config(
         }
     }
     Ok(())
-}
-
-fn move_skydome(
-    camera_query: Query<&Transform, (With<IngameCamera>, Without<Skydome>)>,
-    mut skydome_query: Query<&mut Transform, (Without<IngameCamera>, With<Skydome>)>,
-) {
-    #[cfg(feature = "tracing")]
-    let _span = info_span!("move_skydome").entered();
-    for camera_transform in camera_query.iter() {
-        for mut skydome_transform in skydome_query.iter_mut() {
-            skydome_transform.translation = camera_transform.translation;
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, Resource, Serialize, Deserialize, Default)]

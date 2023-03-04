@@ -1,6 +1,5 @@
 use crate::file_system_interaction::game_state_serialization::{GameLoadRequest, GameSaveRequest};
 use crate::file_system_interaction::level_serialization::WorldLoadRequest;
-use crate::level_instantiation::spawning::{DelayedSpawnEvent, GameObject, SpawnEvent};
 use crate::player_control::camera::ForceCursorGrabMode;
 use crate::util::log_error::log_errors;
 use crate::GameState;
@@ -21,7 +20,8 @@ pub struct DevEditorPlugin;
 
 impl Plugin for DevEditorPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<DevEditorState>()
+        app
+            .init_resource::<DevEditorState>()
             .add_editor_window::<DevEditorWindow>()
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
@@ -59,23 +59,6 @@ impl EditorWindow for DevEditorWindow {
             ui.text_edit_singleline(&mut state.level_name);
         });
 
-        ui.add_enabled_ui(!state.level_name.is_empty(), |ui| {
-            ui.horizontal(|ui| {
-                if ui.button("Load").clicked() {
-                    world.send_event(WorldLoadRequest {
-                        filename: state.level_name.clone(),
-                    });
-                    // Make sure the player is spawned after the level
-                    world.send_event(DelayedSpawnEvent {
-                        tick_delay: 2,
-                        event: SpawnEvent {
-                            object: GameObject::Player,
-                            transform: Transform::from_translation((0., 1.5, 0.).into()),
-                        },
-                    });
-                }
-            });
-        });
         ui.horizontal(|ui| {
             ui.label("Save name: ");
             ui.text_edit_singleline(&mut state.save_name);
@@ -93,26 +76,7 @@ impl EditorWindow for DevEditorWindow {
             }
         });
 
-        ui.add_space(10.);
-        ui.label("Spawning");
-        if ui.button("Spawn").clicked() {
-            world.send_event(SpawnEvent {
-                object: state.spawn_item,
-                ..default()
-            });
-        }
-
         ui.add_space(3.);
-
-        ScrollArea::vertical()
-            .auto_shrink([false; 2])
-            .show(ui, |ui| {
-                ui.vertical(|ui| {
-                    for item in GameObject::iter() {
-                        ui.radio_value(&mut state.spawn_item, item, format!("{item:?}"));
-                    }
-                });
-            });
     }
 }
 
@@ -122,7 +86,6 @@ pub struct DevEditorState {
     pub open: bool,
     pub level_name: String,
     pub save_name: String,
-    pub spawn_item: GameObject,
     pub collider_render_enabled: bool,
     pub navmesh_render_enabled: bool,
 }
@@ -132,7 +95,6 @@ impl Default for DevEditorState {
         Self {
             level_name: "old_town".to_owned(),
             save_name: default(),
-            spawn_item: default(),
             collider_render_enabled: false,
             navmesh_render_enabled: false,
             open: false,

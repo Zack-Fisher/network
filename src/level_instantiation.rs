@@ -17,7 +17,8 @@ impl Plugin for LevelInstantiationPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(MapPlugin)
+            .add_plugin(GrassPlugin)
             .add_plugin(SpawningPlugin)
-            .add_plugin(GrassPlugin);
+            ;
     }
 }

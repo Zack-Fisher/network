@@ -3,11 +3,12 @@ use bevy::prelude::*;
 
 use bevy_rapier3d::prelude::*;
 mod components;
-use crate::level_instantiation::spawning::AnimationEntityLink;
 use crate::util::log_error::log_errors;
 use crate::util::trait_extension::Vec3Ext;
 use crate::GameState;
 pub use components::*;
+
+use crate::level_instantiation::spawning::animation_link::*;
 
 /// Handles movement of character controllers, i.e. entities with the [`CharacterControllerBundle`].
 /// The default forces on a character going right are:  
@@ -149,6 +150,8 @@ fn play_animations(
         &Velocity,
         &Transform,
         &Grounded,
+        //AEL is related to maintaining which animations map to which ents.
+        //see the animation_link.rs module.
         &AnimationEntityLink,
         &CharacterAnimations,
     )>,

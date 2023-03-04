@@ -25,7 +25,8 @@ pub struct PlayerEmbodimentPlugin;
 /// This includes movement and rotation that differ from the way the [`MovementPlugin`] already handles characters in general.
 impl Plugin for PlayerEmbodimentPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Timer>()
+        app
+            .register_type::<Timer>()
             .register_type::<Player>()
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)

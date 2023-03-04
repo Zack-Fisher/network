@@ -107,6 +107,7 @@ fn show_progress(
     texture_assets: Option<Res<TextureAssets>>,
     config_assets: Option<Res<ConfigAssets>>,
 ) {
+    println!("showing progress, in loading state");
     if let Some(progress) = progress.map(|counter| counter.progress()) {
         if progress.done > *last_done {
             *last_done = progress.done;

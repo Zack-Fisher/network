@@ -1,4 +1,3 @@
-use crate::level_instantiation::spawning::objects::player;
 use crate::particles::SprintingParticle;
 use bevy::pbr::NotShadowReceiver;
 use bevy::prelude::*;
@@ -40,7 +39,7 @@ fn create_sprinting_effect(effects: &mut Assets<EffectAsset>) -> ParticleEffect 
             }
             .init(PositionCircleModifier {
                 dimension: ShapeDimension::Volume,
-                radius: player::RADIUS * 0.5,
+                radius: 5.0,
                 speed: 1_f32.into(),
                 center: Vec3::ZERO,
                 axis: Vec3::Y,

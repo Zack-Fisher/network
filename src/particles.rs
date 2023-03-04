@@ -1,4 +1,3 @@
-use crate::level_instantiation::spawning::objects::player;
 use crate::movement::general_movement::Grounded;
 use crate::particles::init::init_effects;
 use crate::util::trait_extension::{F32Ext, Vec3Ext};
@@ -41,7 +40,7 @@ fn play_sprinting_effect(
         for (mut particle_transform, mut effect) in with_particle.iter_mut() {
             if grounded.0 && horizontal_speed_squared > SPRINT_EFFECT_SPEED_THRESHOLD.squared() {
                 let translation = player_transform.translation
-                    - player_transform.up() * (player::HEIGHT / 2. + player::RADIUS);
+                    - player_transform.up() * (2. + 1.);
                 *particle_transform = player_transform.with_translation(translation);
                 effect.maybe_spawner().unwrap().set_active(true);
             } else {

@@ -1,6 +1,5 @@
 #[cfg(feature = "dev")]
 use crate::dev::dev_editor::DevEditorWindow;
-use crate::level_instantiation::spawning::objects::npc;
 use crate::movement::general_movement::{apply_walking, reset_movement_components, Walking};
 use crate::player_control::player_embodiment::Player;
 use crate::util::log_error::log_errors;
@@ -22,7 +21,7 @@ use serde::{Deserialize, Serialize};
 /// Currently only one navmesh is supported. It is loaded automagically from any entity whose name contains `"[navmesh]"`.
 pub struct NavigationPlugin;
 
-const CELL_WIDTH: f32 = 0.5 * npc::RADIUS;
+const CELL_WIDTH: f32 = 5.0;
 
 impl Plugin for NavigationPlugin {
     fn build(&self, app: &mut App) {

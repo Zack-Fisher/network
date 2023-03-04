@@ -1,5 +1,4 @@
 use crate::file_system_interaction::level_serialization::{CurrentLevel, WorldLoadRequest};
-use crate::level_instantiation::spawning::{DelayedSpawnEvent, GameObject, SpawnEvent};
 use crate::player_control::player_embodiment::Player;
 use crate::GameState;
 use bevy::prelude::*;
@@ -21,7 +20,6 @@ impl Plugin for MapPlugin {
 fn setup(
     mut commands: Commands,
     mut loader: EventWriter<WorldLoadRequest>,
-    mut delayed_spawner: EventWriter<DelayedSpawnEvent>,
     current_level: Option<Res<CurrentLevel>>,
 ) {
     if current_level.is_some() {
@@ -35,15 +33,6 @@ fn setup(
 
     loader.send(WorldLoadRequest {
         filename: "levels/test/test.lvl.ron".to_string(),
-    });
-
-    // Make sure the player is spawned after the level
-    delayed_spawner.send(DelayedSpawnEvent {
-        tick_delay: 2,
-        event: SpawnEvent {
-            object: GameObject::Player,
-            transform: Transform::from_xyz(0., 1.5, 0.),
-        },
     });
 }
 
