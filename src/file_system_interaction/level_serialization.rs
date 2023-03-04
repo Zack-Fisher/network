@@ -85,11 +85,6 @@ fn load_world(
             .insert(Name::new("level static scene"))
             ;
 
-        commands
-            .spawn(
-                Camera3dBundle::default()
-            );
-
         commands.insert_resource(CurrentLevel {
             scene: load_ev.filename.clone(),
         });

@@ -36,7 +36,8 @@ pub struct GeneralMovementPlugin;
 
 impl Plugin for GeneralMovementPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Model>()
+        app
+            .register_type::<Model>()
             .register_type::<Grounded>()
             .register_type::<Jumping>()
             .register_type::<Velocity>()

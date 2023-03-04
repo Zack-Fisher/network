@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 pub mod post_spawn_modification;
 pub mod animation_link;
+pub mod objects;
 
 pub struct SpawningPlugin;
 
@@ -10,7 +11,12 @@ impl Plugin for SpawningPlugin {
         app
             .add_event::<SpawnEvent>()
 
+            .add_plugin(objects::ObjectPlugin)
+
             .add_system(spawn_process)
+
+            //all the different marker prefab processes
+            
             ;
     }
 }

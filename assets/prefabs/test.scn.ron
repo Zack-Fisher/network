@@ -46,6 +46,16 @@
           is_visible_in_hierarchy: true,
           is_visible_in_view: true,
         ),
+        "bevy_hierarchy::components::children::Children": ([
+          (
+            generation: 0,
+            index: 26,
+          ),
+        ]),
+        "bevy_hierarchy::components::parent::Parent": ((
+          generation: 1,
+          index: 4,
+        )),
         "foxtrot::level_instantiation::spawning::objects::player::PlayerPrefab": (),
       },
     ),
@@ -95,6 +105,16 @@
           is_visible_in_hierarchy: true,
           is_visible_in_view: true,
         ),
+        "bevy_hierarchy::components::children::Children": ([
+          (
+            generation: 0,
+            index: 56,
+          ),
+        ]),
+        "bevy_hierarchy::components::parent::Parent": ((
+          generation: 1,
+          index: 4,
+        )),
         "foxtrot::level_instantiation::spawning::objects::camera::CameraPrefab": (),
       },
     ),
@@ -144,6 +164,16 @@
           is_visible_in_hierarchy: true,
           is_visible_in_view: true,
         ),
+        "bevy_hierarchy::components::children::Children": ([
+          (
+            generation: 0,
+            index: 57,
+          ),
+        ]),
+        "bevy_hierarchy::components::parent::Parent": ((
+          generation: 1,
+          index: 4,
+        )),
         "foxtrot::level_instantiation::spawning::objects::npc::NPCPrefab": (),
       },
     ),
