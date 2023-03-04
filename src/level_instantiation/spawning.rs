@@ -1,7 +1,6 @@
 use crate::file_system_interaction::asset_loading::{AnimationAssets, SceneAssets};
 use crate::level_instantiation::spawning::animation_link::link_animations;
 use crate::level_instantiation::spawning::objects::camera::CameraSpawner;
-use crate::level_instantiation::spawning::objects::level::LevelSpawner;
 use crate::level_instantiation::spawning::objects::npc::NpcSpawner;
 use crate::level_instantiation::spawning::objects::orb::OrbSpawner;
 use crate::level_instantiation::spawning::objects::player::PlayerSpawner;
@@ -12,7 +11,7 @@ use crate::level_instantiation::spawning::objects::primitives::{
 use crate::level_instantiation::spawning::objects::skydome::SkydomeSpawner;
 use crate::level_instantiation::spawning::objects::sunlight::SunlightSpawner;
 use crate::level_instantiation::spawning::post_spawn_modification::{
-    despawn_removed, set_color, set_hidden, set_shadows,
+    despawn_removed, set_color, set_hidden,
 };
 use crate::level_instantiation::spawning::spawn::{
     despawn, spawn_delayed, spawn_requested, DelayedSpawnEvents, Despawn,
@@ -65,7 +64,6 @@ impl Plugin for SpawningPlugin {
                     .with_system(set_hidden)
                     .with_system(despawn_removed)
                     .with_system(set_color.pipe(log_errors))
-                    .with_system(set_shadows.pipe(log_errors)),
             );
     }
 }
@@ -98,7 +96,6 @@ fn load_assets_for_spawner(mut commands: Commands, mut mesh_assets: ResMut<Asset
                 GameObject::Triangle => Box::new(TriangleSpawner),
                 GameObject::Empty => Box::new(EmptySpawner),
                 GameObject::Camera => Box::new(CameraSpawner),
-                GameObject::Level => Box::new(LevelSpawner),
                 GameObject::Skydome => Box::new(SkydomeSpawner),
             };
         implementors.insert(game_object, implementor);
@@ -160,7 +157,6 @@ pub enum GameObject {
     PointLight,
     Npc,
     Player,
-    Level,
     Orb,
     Camera,
     Skydome,

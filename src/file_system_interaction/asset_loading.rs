@@ -48,8 +48,6 @@ pub struct AudioAssets {
 pub struct SceneAssets {
     #[asset(path = "scenes/Fox.glb#Scene0")]
     pub character: Handle<Scene>,
-    #[asset(path = "scenes/old_town.glb#Scene0")]
-    pub level: Handle<Scene>,
 }
 
 #[derive(AssetCollection, Resource)]
@@ -68,7 +66,7 @@ pub struct LevelAssets {
     #[cfg_attr(feature = "native", asset(path = "levels", collection(typed, mapped)))]
     #[cfg_attr(
         feature = "wasm",
-        asset(paths("levels/test.lvl.ron"), collection(typed, mapped))
+        asset(paths("levels/test/test.lvl.ron"), collection(typed, mapped))
     )]
     pub levels: HashMap<String, Handle<SerializedLevel>>,
 }

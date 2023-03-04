@@ -1,4 +1,0 @@
-(
-    scene_path: "scenes/test.glb",
-    dynamic_path: "res://dynamic/level1.gd"
-)

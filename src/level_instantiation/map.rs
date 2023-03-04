@@ -34,7 +34,7 @@ fn setup(
     });
 
     loader.send(WorldLoadRequest {
-        filename: "levels/test.lvl.ron".to_string(),
+        filename: "levels/test/test.lvl.ron".to_string(),
     });
 
     // Make sure the player is spawned after the level

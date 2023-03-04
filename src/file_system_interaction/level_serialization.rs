@@ -9,6 +9,8 @@ use crate::world_interaction::interactions_ui::InteractionOpportunities;
 use anyhow::{Context, Result};
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
+
+use bevy_editor_pls::prelude::NotInScene;
 use serde::{Deserialize, Serialize};
 
 pub struct LevelSerializationPlugin;
@@ -83,6 +85,7 @@ fn load_world(
                     ..default()
                 }
             )
+            .insert(NotInScene)
             .insert(Name::new("level static scene"))
             ;
 
