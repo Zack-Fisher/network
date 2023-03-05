@@ -12,55 +12,21 @@ categories = ["game-development"]
 homepage = "https://janhohenheim.github.io/foxtrot/"
 
 [features]
-default = [
-    "native-dev",
-]
+default = ["native-dev"]
 
-core = [
-    "bevy/bevy_winit",
-    "bevy/render",
-    "bevy/hdr",
-    "bevy/png",
-    "bevy/jpeg",
-    "bevy/bevy_asset",
-    "bevy/x11",
-    "bevy/animation",
-    "bevy/serialize",
-]
+core = ["bevy/bevy_winit", "bevy/render", "bevy/hdr", "bevy/png", "bevy/jpeg", "bevy/bevy_asset", "bevy/x11", "bevy/animation", "bevy/serialize"]
 
-dev = [
-    "dep:bevy_editor_pls",
-    "dep:bevy_prototype_debug_lines",
-    "core"
-]
+dev = ["dep:bevy_editor_pls", "dep:bevy_prototype_debug_lines", "core"]
 
-native-dev = [
-    "bevy/dynamic",
-    "bevy/filesystem_watcher",
-    "dev",
-    "native"
-]
+native-dev = ["bevy/dynamic", "bevy/filesystem_watcher", "dev", "native"]
 
-native = [
-    "bevy_rapier3d/parallel",
-    "dep:bevy_hanabi",
-    "core"
-]
+native = ["bevy_rapier3d/parallel", "dep:bevy_hanabi", "core"]
 
-wasm = [
-    "bevy_rapier3d/wasm-bindgen",
-    "core",
-    "dep:wasm-bindgen",
-]
+wasm = ["bevy_rapier3d/wasm-bindgen", "core", "dep:wasm-bindgen"]
 
-wasm_dev = [
-    "wasm",
-    "dev"
-]
+wasm_dev = ["wasm", "dev"]
 
-tracing = [
-    "bevy/trace_chrome"
-]
+tracing = ["bevy/trace_chrome"]
 
 [dependencies]
 bevy = { version = "^0.9.1", default-features = false }
@@ -100,5 +66,5 @@ embed-resource = "1.4"
 [patch.crates-io]
 leafwing-input-manager = { git = "https://github.com/TimJentzsch/leafwing-input-manager.git", branch = "307-scancode-support" } # https://github.com/Leafwing-Studios/leafwing-input-manager/pull/312
 bevy_asset_loader = { git = "https://github.com/NiklasEi/bevy_asset_loader.git", rev = "be7f9005db76224912a06742ed521557262b50fe" } # Collections as maps feature
-bevy_editor_pls = { git = "https://github.com/Zack-Fisher/bevy_editor_pls" } # Smaller bug fixes
+bevy_editor_pls = { git = "https://github.com/Zack-Fisher/bevy_editor_pls" } 
 bevy_hanabi = { git = "https://github.com/janhohenheim/bevy_hanabi" } # https://github.com/djeedai/bevy_hanabi/issues/144

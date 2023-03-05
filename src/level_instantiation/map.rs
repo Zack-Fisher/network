@@ -4,6 +4,8 @@ use crate::GameState;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContext};
 
+use super::level::Levels;
+
 pub struct MapPlugin;
 
 impl Plugin for MapPlugin {
@@ -32,7 +34,8 @@ fn setup(
     });
 
     loader.send(WorldLoadRequest {
-        filename: "levels/test/test.lvl.ron".to_string(),
+        level: Levels::default(),
+        spawnpoint_name: "not impl".to_string(),
     });
 }
 

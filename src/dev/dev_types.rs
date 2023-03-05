@@ -9,9 +9,18 @@ impl Plugin for DevTypesPlugin {
             .add_startup_system(add_types)
             //cannot change struct values from default if you can't register the type.
             //all structs should implement default
+
+            ///// PREFAB OBJECTS /////
             .register_type::<PlayerPrefab>()
             .register_type::<CameraPrefab>()
             .register_type::<NPCPrefab>()
+            .register_type::<SpawnpointPrefab>()
+            .register_type::<WarppointPrefab>()
+            /////
+
+            ///// PRIMITIVES /////
+            .register_type::<CubePrefab>()
+            /////
             ; 
     }
 }
@@ -25,6 +34,7 @@ pub enum EditorCategories {
     //for temp components that are only concerned with editor-type stuff.
     EditorUtil,
     Rapier,
+    Primitive,
 }
 
 impl EditorCategories {
@@ -36,6 +46,7 @@ impl EditorCategories {
             EditorCategories::UIUtil => "UIUtil",
             EditorCategories::EditorUtil => "EditorUtil",
             EditorCategories::Rapier => "Rapier",
+            EditorCategories::Primitive => "Primitive",
         }
     }
 }
@@ -46,6 +57,9 @@ use bevy_editor_pls::*;
 use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
 use crate::level_instantiation::spawning::objects::npc::NPCPrefab;
+use crate::level_instantiation::spawning::objects::primitives::CubePrefab;
+use crate::level_instantiation::spawning::objects::spawnpoint::SpawnpointPrefab;
+use crate::level_instantiation::spawning::objects::warppoint::WarppointPrefab;
 use crate::player_control::player_embodiment::Player;
 
 use crate::movement::general_movement::*;
@@ -89,6 +103,21 @@ fn add_types (
     state.add(
         EditorCategories::Prefab.to_string(),
         AddItem::component::<NPCPrefab>(),
+    );
+
+    state.add(
+        EditorCategories::Prefab.to_string(),
+        AddItem::component::<WarppointPrefab>(),
+    );
+
+    state.add(
+        EditorCategories::Prefab.to_string(),
+        AddItem::component::<SpawnpointPrefab>(),
+    );
+
+    state.add(
+        EditorCategories::Primitive.to_string(),
+        AddItem::component::<CubePrefab>(),
     );
 }
 

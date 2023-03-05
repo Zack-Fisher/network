@@ -15,7 +15,8 @@ pub struct WorldInteractionPlugin;
 
 impl Plugin for WorldInteractionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ConditionPlugin)
+        app
+            .add_plugin(ConditionPlugin)
             .add_plugin(DialogPlugin)
             .add_plugin(InteractionsUiPlugin);
     }

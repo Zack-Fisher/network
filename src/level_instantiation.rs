@@ -1,6 +1,7 @@
 pub mod grass;
 pub mod map;
 pub mod spawning;
+pub mod level;
 
 use crate::level_instantiation::grass::GrassPlugin;
 use crate::level_instantiation::map::MapPlugin;

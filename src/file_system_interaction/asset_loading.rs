@@ -46,17 +46,17 @@ pub struct AudioAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct SceneAssets {
-    #[asset(path = "scenes/Fox.glb#Scene0")]
+    #[asset(path = "models/Default.glb#Scene0")]
     pub character: Handle<Scene>,
 }
 
 #[derive(AssetCollection, Resource)]
 pub struct AnimationAssets {
-    #[asset(path = "scenes/Fox.glb#Animation0")]
+    #[asset(path = "models/Default.glb#Animation0")]
     pub character_idle: Handle<AnimationClip>,
-    #[asset(path = "scenes/Fox.glb#Animation1")]
+    #[asset(path = "models/Default.glb#Animation1")]
     pub character_walking: Handle<AnimationClip>,
-    #[asset(path = "scenes/Fox.glb#Animation2")]
+    #[asset(path = "models/Default.glb#Animation2")]
     pub character_running: Handle<AnimationClip>,
 }
 
@@ -66,7 +66,10 @@ pub struct LevelAssets {
     #[cfg_attr(feature = "native", asset(path = "levels", collection(typed, mapped)))]
     #[cfg_attr(
         feature = "wasm",
-        asset(paths("levels/test/test.lvl.ron"), collection(typed, mapped))
+        asset(paths(
+            "levels/test/test.lvl.ron",
+            "levels/testtwo/testtwo.lvl.ron"
+        ), collection(typed, mapped))
     )]
     pub levels: HashMap<String, Handle<SerializedLevel>>,
 }
@@ -107,7 +110,6 @@ fn show_progress(
     texture_assets: Option<Res<TextureAssets>>,
     config_assets: Option<Res<ConfigAssets>>,
 ) {
-    println!("showing progress, in loading state");
     if let Some(progress) = progress.map(|counter| counter.progress()) {
         if progress.done > *last_done {
             *last_done = progress.done;

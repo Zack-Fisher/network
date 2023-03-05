@@ -1,4 +1,5 @@
 use crate::file_system_interaction::level_serialization::{CurrentLevel, WorldLoadRequest};
+use crate::level_instantiation::level::Levels;
 use crate::player_control::player_embodiment::Player;
 use crate::util::log_error::log_errors;
 use crate::world_interaction::condition::ActiveConditions;
@@ -112,8 +113,10 @@ fn handle_load_requests(
                 continue;
             }
         };
+
         loader.send(WorldLoadRequest {
-            filename: save_model.scene,
+            level: Levels::Test,
+            spawnpoint_name: "not implemented yet".to_string(),
         });
         if let Some(dialog_event) = save_model.dialog_event {
             dialog_event_writer.send(dialog_event);

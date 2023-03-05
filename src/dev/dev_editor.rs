@@ -1,5 +1,6 @@
 use crate::file_system_interaction::game_state_serialization::{GameLoadRequest, GameSaveRequest};
 use crate::file_system_interaction::level_serialization::WorldLoadRequest;
+use crate::level_instantiation::level::Levels;
 use crate::player_control::camera::ForceCursorGrabMode;
 use crate::util::log_error::log_errors;
 use crate::GameState;
@@ -59,22 +60,22 @@ impl EditorWindow for DevEditorWindow {
             ui.text_edit_singleline(&mut state.level_name);
         });
 
-        ui.horizontal(|ui| {
-            ui.label("Save name: ");
-            ui.text_edit_singleline(&mut state.save_name);
-        });
+        egui::ComboBox::from_label("Pick a Level")
+            .show_ui(ui, |ui| {
+                for value in Levels::iter() {
+                    ui.selectable_value(&mut state.selected, value.clone(), value.clone().to_string());    
+                }
+            }
+            );
 
-        ui.horizontal(|ui| {
-            let filename = (!state.save_name.is_empty()).then(|| state.save_name.clone());
-            if ui.button("Save").clicked() {
-                world.send_event(GameSaveRequest {
-                    filename: filename.clone(),
-                })
-            }
-            if ui.button("Load").clicked() {
-                world.send_event(GameLoadRequest { filename });
-            }
-        });
+        if ui.button("Load level").clicked() {
+            world.send_event( {
+                WorldLoadRequest {
+                    level: state.selected.clone(),
+                    spawnpoint_name: String::from("not implemented"),
+                }
+            });
+        }
 
         ui.add_space(3.);
     }
@@ -88,6 +89,7 @@ pub struct DevEditorState {
     pub save_name: String,
     pub collider_render_enabled: bool,
     pub navmesh_render_enabled: bool,
+    pub selected: Levels,
 }
 
 impl Default for DevEditorState {
@@ -98,6 +100,7 @@ impl Default for DevEditorState {
             collider_render_enabled: false,
             navmesh_render_enabled: false,
             open: false,
+            selected: Levels::default(),
         }
     }
 }

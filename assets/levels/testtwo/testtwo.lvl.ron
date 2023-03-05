@@ -1,0 +1,5 @@
+(
+    scene_path: "levels/testtwo/testtwo.glb",
+    dynamic_path: "levels/testtwo/testtwo.scn.ron"
+)
+

@@ -8,6 +8,9 @@ use crate::GameState;
 pub mod player;
 pub mod camera;
 pub mod npc;
+pub mod primitives;
+pub mod spawnpoint;
+pub mod warppoint;
 
 pub struct ObjectPlugin;
 
@@ -18,8 +21,13 @@ impl Plugin for ObjectPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(player::build_player)
+                    .with_system(player::init_animation_entity_link)
                     .with_system(camera::build_camera)
                     .with_system(npc::build_npc)
+                    .with_system(primitives::build_cube)
+
+                    .with_system(warppoint::build_warppoint)
+                    .with_system(warppoint::warppoint_process)
             )
             ;
     }
