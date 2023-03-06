@@ -103,7 +103,8 @@ fn racetable_process (
             }
         }
         None => {
-}
+
+        }
     }
 }
 

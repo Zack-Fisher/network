@@ -5,8 +5,10 @@ use crate::player_control::actions::{
     create_player_action_input_manager_bundle, create_ui_action_input_manager_bundle,
 };
 use crate::player_control::player_embodiment::Player;
+use crate::ui::mapui::MapHandle;
 use anyhow::Result;
 use bevy::prelude::*;
+use bevy::render::render_resource::*;
 use bevy_rapier3d::prelude::*;
 
 use std::f32::consts::TAU;
@@ -38,6 +40,8 @@ pub fn build_player(
     scenes: Res<SceneAssets>,
 
     prefab_q: Query<(Entity, &PlayerPrefab), Added<PlayerPrefab>>,
+
+    mut map_handle: ResMut<MapHandle>,
 )
 {
     for (ent, player_prefab) in prefab_q.iter() {
@@ -75,7 +79,45 @@ pub fn build_player(
                             },
                             Model,
                             Name::new("Player Model"),
-                        ));
+                        ))
+                        ;
+
+                        let size = Extent3d {
+                            width: 512,
+                            height: 512,
+                            ..default()
+                        };
+
+                        let mut image = Image {
+                            texture_descriptor: TextureDescriptor {
+                                label: None,
+                                size,
+                                dimension: TextureDimension::D2,
+                                format: TextureFormat::Bgra8UnormSrgb,
+                                mip_level_count: 1,
+                                sample_count: 1,
+                                usage: TextureUsages::TEXTURE_BINDING
+                                    | TextureUsages::COPY_DST
+                                    | TextureUsages::RENDER_ATTACHMENT,
+                            },
+                            ..default()
+                        };
+
+                        image.resize(size);
+
+                        //the camera that will publish to the map.
+                        parent.spawn(
+                            Camera3dBundle {
+                                transform: Transform::from_xyz(0., 0., 30.)
+                                    .looking_at(Vec3::ZERO, Vec3::X),
+                                camera: Camera {
+                                    target: bevy::render::camera::RenderTarget::Image(image_handle.clone()),
+                                    ..default()
+                                },
+                                ..default()
+                            }
+                        )
+                        ;
                     })
                     ;
             });
