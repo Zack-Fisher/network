@@ -59,6 +59,7 @@ rand = { version = "0.8.5", features = ["small_rng", "nightly"] }
 # keep the following in sync with Bevy's dependencies
 winit = { version = "0.27", default-features = false }
 image = { version = "0.24", default-features = false }
+iyes_loopless = "0.9.1"
 
 [build-dependencies]
 embed-resource = "1.4"

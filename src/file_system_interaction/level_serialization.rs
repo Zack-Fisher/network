@@ -1,5 +1,7 @@
 use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
+use crate::level_instantiation::spawning::objects::race::FlushCheckpointCounts;
+use crate::level_instantiation::spawning::objects::skybox::SkyboxPrefab;
 use crate::{file_system_interaction::asset_loading::LevelAssets, level_instantiation::level::Levels};
 use crate::util::log_error::log_errors;
 use crate::world_interaction::condition::ActiveConditions;
@@ -59,6 +61,7 @@ struct ConstantLevel;
 fn load_world(
     mut commands: Commands,
     mut load_requests: EventReader<WorldLoadRequest>,
+    mut racetable_flush_evw: EventWriter<FlushCheckpointCounts>,
     levels: Res<Assets<SerializedLevel>>,
     level_handles: Option<Res<LevelAssets>>,
     server: Res<AssetServer>,
@@ -151,6 +154,16 @@ fn load_world(
                             SpatialBundle::default(),
                         )
                     );
+
+                children
+                    .spawn(
+                        (
+                            PointLightBundle {
+                                transform: Transform::from_xyz(5., 5., 5.),
+                                ..default()
+                            }
+                        )
+                    );
             })
             .insert(ConstantLevel)
             .insert(Name::new("Constants"))
@@ -162,6 +175,11 @@ fn load_world(
         commands.insert_resource(InteractionOpportunities::default());
         commands.insert_resource(ActiveConditions::default());
         commands.remove_resource::<CurrentDialog>();
+
+
+        //do some extra stuff
+        //clean out the counts in the racetable
+        racetable_flush_evw.send(FlushCheckpointCounts);
 
         info!("Successfully loaded scene \"{}\"", filename,)
     }

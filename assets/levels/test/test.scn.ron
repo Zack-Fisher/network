@@ -1,3 +1,181 @@
 (
-  entities: {}
+  entities: {
+    88: (
+      components: {
+        "bevy_transform::components::global_transform::GlobalTransform": ((
+          matrix3: (
+            x_axis: (
+              x: 1.0,
+              y: 0.0,
+              z: 0.0,
+            ),
+            y_axis: (
+              x: 0.0,
+              y: 1.0,
+              z: 0.0,
+            ),
+            z_axis: (
+              x: 0.0,
+              y: 0.0,
+              z: 1.0,
+            ),
+          ),
+          translation: (
+            x: 13.5,
+            y: 0.2,
+            z: -13.8,
+          ),
+        )),
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: 13.5,
+            y: 0.2,
+            z: -13.8,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": (
+          is_visible: true,
+        ),
+        "bevy_render::view::visibility::ComputedVisibility": (
+          is_visible_in_hierarchy: true,
+          is_visible_in_view: true,
+        ),
+        "foxtrot::level_instantiation::spawning::objects::race::checkpoint::CheckpointPrefab": (
+          target_radius: 3.0,
+          color: Rgba(
+            red: 0.64705884,
+            green: 0.47843137,
+            blue: 0.62352943,
+            alpha: 0.6901961,
+          ),
+          race_name: BetaRace,
+          is_hit: false,
+        ),
+      },
+    ),
+    89: (
+      components: {
+        "bevy_transform::components::global_transform::GlobalTransform": ((
+          matrix3: (
+            x_axis: (
+              x: 1.0,
+              y: 0.0,
+              z: 0.0,
+            ),
+            y_axis: (
+              x: 0.0,
+              y: 1.0,
+              z: 0.0,
+            ),
+            z_axis: (
+              x: 0.0,
+              y: 0.0,
+              z: 1.0,
+            ),
+          ),
+          translation: (
+            x: -15.6,
+            y: 0.0,
+            z: 0.0,
+          ),
+        )),
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -15.6,
+            y: 0.0,
+            z: 0.0,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": (
+          is_visible: true,
+        ),
+        "bevy_render::view::visibility::ComputedVisibility": (
+          is_visible_in_hierarchy: true,
+          is_visible_in_view: true,
+        ),
+        "foxtrot::level_instantiation::spawning::objects::race::checkpoint::CheckpointPrefab": (
+          target_radius: 3.0,
+          color: Rgba(
+            red: 0.23921569,
+            green: 0.15686275,
+            blue: 0.13725491,
+            alpha: 0.57254905,
+          ),
+          race_name: BetaRace,
+          is_hit: false,
+        ),
+      },
+    ),
+    90: (
+      components: {
+        "bevy_transform::components::global_transform::GlobalTransform": ((
+          matrix3: (
+            x_axis: (
+              x: 1.0,
+              y: 0.0,
+              z: 0.0,
+            ),
+            y_axis: (
+              x: 0.0,
+              y: 1.0,
+              z: 0.0,
+            ),
+            z_axis: (
+              x: 0.0,
+              y: 0.0,
+              z: 1.0,
+            ),
+          ),
+          translation: (
+            x: -6.5,
+            y: 0.0,
+            z: 13.0,
+          ),
+        )),
+        "bevy_transform::components::transform::Transform": (
+          translation: (
+            x: -6.5,
+            y: 0.0,
+            z: 13.0,
+          ),
+          rotation: (0.0, 0.0, 0.0, 1.0),
+          scale: (
+            x: 1.0,
+            y: 1.0,
+            z: 1.0,
+          ),
+        ),
+        "bevy_render::view::visibility::Visibility": (
+          is_visible: true,
+        ),
+        "bevy_render::view::visibility::ComputedVisibility": (
+          is_visible_in_hierarchy: true,
+          is_visible_in_view: true,
+        ),
+        "foxtrot::level_instantiation::spawning::objects::race::checkpoint::CheckpointPrefab": (
+          target_radius: 3.0,
+          color: Rgba(
+            red: 0.24705882,
+            green: 0.2,
+            blue: 0.43529412,
+            alpha: 0.4117647,
+          ),
+          race_name: BetaRace,
+          is_hit: false,
+        ),
+      },
+    ),
+  },
 )

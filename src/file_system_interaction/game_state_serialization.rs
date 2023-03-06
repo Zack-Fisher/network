@@ -114,14 +114,15 @@ fn handle_load_requests(
             }
         };
 
-        loader.send(WorldLoadRequest {
-            level: Levels::Test,
-            spawnpoint_name: "not implemented yet".to_string(),
-        });
-        if let Some(dialog_event) = save_model.dialog_event {
-            dialog_event_writer.send(dialog_event);
-        }
-        commands.insert_resource(save_model.conditions);
+        todo!("loading games not yet implemented");
+        // loader.send(WorldLoadRequest {
+        //     level: Levels::Test,
+        //     spawnpoint_name: "not implemented yet".to_string(),
+        // });
+        // if let Some(dialog_event) = save_model.dialog_event {
+        //     dialog_event_writer.send(dialog_event);
+        // }
+        // commands.insert_resource(save_model.conditions);
     }
     Ok(())
 }

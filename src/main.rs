@@ -5,5 +5,9 @@ use bevy::prelude::*;
 use foxtrot::GamePlugin;
 
 fn main() {
-    App::new().add_plugin(GamePlugin).run();
+    App::new()
+        .insert_resource(ClearColor(Color::rgb(0.9, 0.3, 0.5)))
+        .add_plugin(GamePlugin)
+        .run()
+        ;
 }

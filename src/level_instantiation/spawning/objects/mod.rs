@@ -11,12 +11,16 @@ pub mod npc;
 pub mod primitives;
 pub mod spawnpoint;
 pub mod warppoint;
+pub mod skybox;
+pub mod race;
 
 pub struct ObjectPlugin;
 
 impl Plugin for ObjectPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_plugin(race::RacePlugin)
+
             //this plugin runs all the builder systems for each prefab in the game
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
@@ -25,12 +29,14 @@ impl Plugin for ObjectPlugin {
                     .with_system(camera::build_camera)
                     .with_system(npc::build_npc)
                     .with_system(primitives::build_cube)
+                    .with_system(skybox::build_skybox)
+                    .with_system(skybox::skybox_process)
 
                     .with_system(warppoint::build_warppoint)
                     .with_system(warppoint::warppoint_process)
             )
             ;
-    }
+        }
 }
 
 //all the collision groups for the game, organized here.

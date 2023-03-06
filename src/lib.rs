@@ -29,6 +29,7 @@ pub mod player_control;
 pub mod shader;
 pub mod util;
 pub mod world_interaction;
+pub mod ui;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]
@@ -43,6 +44,7 @@ use crate::particles::ParticlePlugin;
 use crate::player_control::PlayerControlPlugin;
 use crate::shader::ShaderPlugin;
 use crate::world_interaction::WorldInteractionPlugin;
+use crate::ui::UIPlugin;
 use bevy::prelude::*;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
@@ -94,6 +96,7 @@ impl Plugin for GamePlugin {
             .add_plugin(FileSystemInteractionPlugin)
             .add_plugin(ShaderPlugin)
             .add_plugin(IngameMenuPlugin)
+            .add_plugin(UIPlugin)
             ;
 
         #[cfg(feature = "dev")]

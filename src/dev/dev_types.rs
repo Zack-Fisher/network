@@ -10,12 +10,17 @@ impl Plugin for DevTypesPlugin {
             //cannot change struct values from default if you can't register the type.
             //all structs should implement default
 
+            ///// ENUMS /////
+            .register_type::<Races>()
+
             ///// PREFAB OBJECTS /////
             .register_type::<PlayerPrefab>()
             .register_type::<CameraPrefab>()
             .register_type::<NPCPrefab>()
             .register_type::<SpawnpointPrefab>()
             .register_type::<WarppointPrefab>()
+            .register_type::<SkyboxPrefab>()
+            .register_type::<CheckpointPrefab>()
             /////
 
             ///// PRIMITIVES /////
@@ -35,6 +40,7 @@ pub enum EditorCategories {
     EditorUtil,
     Rapier,
     Primitive,
+    Race,
 }
 
 impl EditorCategories {
@@ -47,6 +53,7 @@ impl EditorCategories {
             EditorCategories::EditorUtil => "EditorUtil",
             EditorCategories::Rapier => "Rapier",
             EditorCategories::Primitive => "Primitive",
+            EditorCategories::Race => "Race",
         }
     }
 }
@@ -58,6 +65,9 @@ use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
 use crate::level_instantiation::spawning::objects::npc::NPCPrefab;
 use crate::level_instantiation::spawning::objects::primitives::CubePrefab;
+use crate::level_instantiation::spawning::objects::race::Races;
+use crate::level_instantiation::spawning::objects::race::checkpoint::CheckpointPrefab;
+use crate::level_instantiation::spawning::objects::skybox::SkyboxPrefab;
 use crate::level_instantiation::spawning::objects::spawnpoint::SpawnpointPrefab;
 use crate::level_instantiation::spawning::objects::warppoint::WarppointPrefab;
 use crate::player_control::player_embodiment::Player;
@@ -116,8 +126,18 @@ fn add_types (
     );
 
     state.add(
+        EditorCategories::Prefab.to_string(),
+        AddItem::component::<SkyboxPrefab>(),
+    );
+
+    state.add(
         EditorCategories::Primitive.to_string(),
         AddItem::component::<CubePrefab>(),
+    );
+
+    state.add(
+        EditorCategories::Race.to_string(),
+        AddItem::component::<CheckpointPrefab>(),
     );
 }
 
