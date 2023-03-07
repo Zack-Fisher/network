@@ -60,6 +60,7 @@ rand = { version = "0.8.5", features = ["small_rng", "nightly"] }
 winit = { version = "0.27", default-features = false }
 image = { version = "0.24", default-features = false }
 iyes_loopless = "0.9.1"
+bevy_pkv = "0.7.0"
 
 [build-dependencies]
 embed-resource = "1.4"

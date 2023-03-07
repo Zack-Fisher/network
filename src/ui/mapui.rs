@@ -1,4 +1,7 @@
 use bevy::prelude::*;
+use leafwing_input_manager::prelude::ActionState;
+
+use crate::player_control::actions::UiAction;
 
 pub struct MapUIPlugin;
 
@@ -69,7 +72,14 @@ fn build_mapui (
 
             children
                 .spawn(
-                    ImageBundle::default()
+                    ImageBundle {
+                        style: Style {
+                            position_type: PositionType::Relative,
+                            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                            ..default()
+                        },
+                        ..default()
+                    }
                 )
                 .insert(MapImage)
                 ;
@@ -81,10 +91,16 @@ fn build_mapui (
 
 fn mapuibase_process (
     mut base_q: Query<&mut Visibility, With<MapUIBase>>,
+
+    uiaction_q: Query<&ActionState<UiAction>>,
 )
 {
-    for mut vis in base_q.iter_mut() {
-
+    for actions in uiaction_q.iter() {
+        if actions.just_pressed(UiAction::ToggleMap) {
+            for mut vis in base_q.iter_mut() {
+                vis.is_visible = !vis.is_visible;    
+            }
+        }
     }
 }
 

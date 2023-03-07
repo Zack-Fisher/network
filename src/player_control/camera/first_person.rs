@@ -1,5 +1,5 @@
 use crate::file_system_interaction::config::GameConfig;
-use crate::player_control::actions::CameraAction;
+use crate::player_control::actions::PlayerAction;
 use crate::player_control::camera::util::clamp_pitch;
 use crate::player_control::camera::ThirdPersonCamera;
 use anyhow::{Context, Result};
@@ -47,14 +47,14 @@ impl FirstPersonCamera {
     pub fn update_transform(
         &mut self,
         dt: f32,
-        camera_actions: &ActionState<CameraAction>,
+        camera_actions: &ActionState<PlayerAction>,
         transform: Transform,
     ) -> Result<Transform> {
         if let Some(look_target) = self.look_target {
             self.look_at(look_target);
         } else {
             let camera_movement = camera_actions
-                .axis_pair(CameraAction::Pan)
+                .axis_pair(PlayerAction::Pan)
                 .context("Camera movement is not an axis pair")?
                 .xy();
             self.handle_camera_controls(camera_movement);

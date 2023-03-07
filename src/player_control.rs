@@ -16,8 +16,10 @@ pub struct PlayerControlPlugin;
 
 impl Plugin for PlayerControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(ActionsPlugin)
+        app
+            .add_plugin(ActionsPlugin)
             .add_plugin(CameraPlugin)
-            .add_plugin(PlayerEmbodimentPlugin);
+            .add_plugin(PlayerEmbodimentPlugin)
+            ;
     }
 }

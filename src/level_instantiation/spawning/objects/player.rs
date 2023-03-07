@@ -42,6 +42,8 @@ pub fn build_player(
     prefab_q: Query<(Entity, &PlayerPrefab), Added<PlayerPrefab>>,
 
     mut map_handle: ResMut<MapHandle>,
+
+    mut images: ResMut<Assets<Image>>,
 )
 {
     for (ent, player_prefab) in prefab_q.iter() {
@@ -105,18 +107,26 @@ pub fn build_player(
 
                         image.resize(size);
 
+                        let image_handle = images.add(image.clone());
+
+                        map_handle.0 = Some(image_handle.clone());
+
                         //the camera that will publish to the map.
                         parent.spawn(
                             Camera3dBundle {
-                                transform: Transform::from_xyz(0., 0., 30.)
+                                transform: Transform::from_xyz(0., 30., 0.)
                                     .looking_at(Vec3::ZERO, Vec3::X),
                                 camera: Camera {
                                     target: bevy::render::camera::RenderTarget::Image(image_handle.clone()),
+                                    
                                     ..default()
                                 },
                                 ..default()
                             }
                         )
+                        .insert(UiCameraConfig {
+                            show_ui: false,
+                        })
                         ;
                     })
                     ;

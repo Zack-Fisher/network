@@ -1,6 +1,6 @@
 use crate::file_system_interaction::asset_loading::ConfigAssets;
 use crate::file_system_interaction::config::GameConfig;
-use crate::player_control::actions::{ActionsFrozen, CameraAction};
+use crate::player_control::actions::{ActionsFrozen};
 use crate::player_control::camera::focus::{set_camera_focus, switch_kind};
 use crate::util::log_error::log_errors;
 use crate::GameState;
@@ -14,6 +14,8 @@ use leafwing_input_manager::prelude::ActionState;
 use serde::{Deserialize, Serialize};
 pub use third_person::ThirdPersonCamera;
 use ui::*;
+
+use super::actions::PlayerAction;
 
 mod first_person;
 mod fixed_angle;
@@ -164,7 +166,7 @@ pub fn update_transform(
     time: Res<Time>,
     rapier_context: Res<RapierContext>,
     mut camera: Query<(
-        &ActionState<CameraAction>,
+        &ActionState<PlayerAction>,
         &mut IngameCamera,
         &mut Transform,
     )>,

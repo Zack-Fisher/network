@@ -1,3 +1,6 @@
+//this isn't even necessarily the player actions.
+//it's just all the actions used in the game, including ui stuff that's not necessarily related
+
 use bevy::prelude::*;
 use leafwing_input_manager::axislike::DualAxisData;
 use leafwing_input_manager::plugin::InputManagerSystem;
@@ -30,12 +33,10 @@ impl ActionsFrozen {
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<PlayerAction>()
-            .register_type::<CameraAction>()
             .register_type::<UiAction>()
             .register_type::<ActionsFrozen>()
             .init_resource::<ActionsFrozen>()
             .add_plugin(InputManagerPlugin::<PlayerAction>::default())
-            .add_plugin(InputManagerPlugin::<CameraAction>::default())
             .add_plugin(InputManagerPlugin::<UiAction>::default())
             .add_system_to_stage(
                 CoreStage::PreUpdate,
@@ -44,6 +45,8 @@ impl Plugin for ActionsPlugin {
     }
 }
 
+//i think these all need to be in the same struct. we probably have to serialize camera actions
+//as well.
 #[derive(Debug, Clone, Copy, Actionlike, Reflect, FromReflect, Default)]
 pub enum PlayerAction {
     #[default]
@@ -62,6 +65,10 @@ pub enum PlayerAction {
     NumberedChoice8,
     NumberedChoice9,
     NumberedChoice0,
+
+    //camera actions
+    Pan,
+    Zoom,
 }
 
 impl PlayerAction {
@@ -86,16 +93,10 @@ impl PlayerAction {
 }
 
 #[derive(Debug, Clone, Actionlike, Reflect, FromReflect, Default)]
-pub enum CameraAction {
-    #[default]
-    Pan,
-    Zoom,
-}
-
-#[derive(Debug, Clone, Actionlike, Reflect, FromReflect, Default)]
 pub enum UiAction {
     #[default]
     TogglePause,
+    ToggleMap,
 }
 
 pub fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerAction> {
@@ -117,24 +118,19 @@ pub fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerA
             (QwertyScanCode::Key0, PlayerAction::NumberedChoice0),
         ])
         .insert(VirtualDPad::wasd(), PlayerAction::Move)
+        .insert(DualAxis::mouse_motion(), PlayerAction::Pan)
+        .insert(SingleAxis::mouse_wheel_y(), PlayerAction::Zoom)
         .build(),
-        ..default()
-    }
-}
-
-pub fn create_camera_action_input_manager_bundle() -> InputManagerBundle<CameraAction> {
-    InputManagerBundle {
-        input_map: InputMap::default()
-            .insert(DualAxis::mouse_motion(), CameraAction::Pan)
-            .insert(SingleAxis::mouse_wheel_y(), CameraAction::Zoom)
-            .build(),
         ..default()
     }
 }
 
 pub fn create_ui_action_input_manager_bundle() -> InputManagerBundle<UiAction> {
     InputManagerBundle {
-        input_map: InputMap::new([(QwertyScanCode::Escape, UiAction::TogglePause)]),
+        input_map: InputMap::new([
+            (QwertyScanCode::Escape, UiAction::TogglePause),
+            (QwertyScanCode::T, UiAction::ToggleMap),
+            ]),
         ..default()
     }
 }
@@ -142,7 +138,6 @@ pub fn create_ui_action_input_manager_bundle() -> InputManagerBundle<UiAction> {
 pub fn remove_actions_when_frozen(
     actions_frozen: Res<ActionsFrozen>,
     mut player_actions_query: Query<&mut ActionState<PlayerAction>>,
-    mut camera_actions_query: Query<&mut ActionState<CameraAction>>,
 ) {
     if actions_frozen.is_frozen() {
         for mut player_actions in player_actions_query.iter_mut() {
@@ -150,10 +145,8 @@ pub fn remove_actions_when_frozen(
             player_actions.release(PlayerAction::Jump);
             player_actions.release(PlayerAction::Interact);
             player_actions.release(PlayerAction::Sprint);
-        }
-        for mut camera_actions in camera_actions_query.iter_mut() {
-            camera_actions.action_data_mut(CameraAction::Pan).axis_pair = Some(default());
-            camera_actions.action_data_mut(CameraAction::Zoom).value = default();
+            player_actions.action_data_mut(PlayerAction::Pan).axis_pair = Some(default());
+            player_actions.action_data_mut(PlayerAction::Zoom).value = default();
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::file_system_interaction::config::GameConfig;
-use crate::player_control::actions::CameraAction;
+use crate::player_control::actions::PlayerAction;
 use crate::player_control::camera::util::clamp_pitch;
 use crate::player_control::camera::{FirstPersonCamera, FixedAngleCamera};
 use crate::util::trait_extension::{Vec2Ext, Vec3Ext};
@@ -87,7 +87,7 @@ impl ThirdPersonCamera {
     pub fn update_transform(
         &mut self,
         dt: f32,
-        camera_actions: &ActionState<CameraAction>,
+        camera_actions: &ActionState<PlayerAction>,
         rapier_context: &RapierContext,
         transform: Transform,
     ) -> Result<Transform> {
@@ -96,14 +96,14 @@ impl ThirdPersonCamera {
         }
 
         let camera_movement = camera_actions
-            .axis_pair(CameraAction::Pan)
+            .axis_pair(PlayerAction::Pan)
             .context("Camera movement is not an axis pair")?
             .xy();
         if !camera_movement.is_approx_zero() {
             self.handle_camera_controls(camera_movement);
         }
 
-        let zoom = camera_actions.clamped_value(CameraAction::Zoom);
+        let zoom = camera_actions.clamped_value(PlayerAction::Zoom);
         self.zoom(zoom);
         let los_correction = self.place_eye_in_valid_position(rapier_context);
         Ok(self.get_camera_transform(dt, transform, los_correction))
