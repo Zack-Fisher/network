@@ -30,6 +30,7 @@ pub mod shader;
 pub mod util;
 pub mod world_interaction;
 pub mod ui;
+pub mod recording;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]
@@ -97,6 +98,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ShaderPlugin)
             .add_plugin(IngameMenuPlugin)
             .add_plugin(UIPlugin)
+            .add_plugin(recording::RecordingPlugin)
             ;
 
         #[cfg(feature = "dev")]

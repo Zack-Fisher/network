@@ -21,15 +21,15 @@ impl Plugin for DevTypesPlugin {
             .register_type::<WarppointPrefab>()
             .register_type::<SkyboxPrefab>()
             .register_type::<CheckpointPrefab>()
+            .register_type::<GhostSplat>()
+            .register_type::<GhostPrefab>()
             /////
 
             ///// PRIMITIVES /////
             .register_type::<CubePrefab>()
             /////
             ; 
-    }
-}
-
+    } }
 //please add more as you see fit.
 pub enum EditorCategories {
     Prefab,
@@ -41,6 +41,7 @@ pub enum EditorCategories {
     Rapier,
     Primitive,
     Race,
+    Ghosts,
 }
 
 impl EditorCategories {
@@ -54,6 +55,7 @@ impl EditorCategories {
             EditorCategories::Rapier => "Rapier",
             EditorCategories::Primitive => "Primitive",
             EditorCategories::Race => "Race",
+            EditorCategories::Ghosts => "Ghosts",
         }
     }
 }
@@ -62,6 +64,7 @@ use bevy_editor_pls::default_windows::add::*;
 use bevy_editor_pls::*;
 
 use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
+use crate::level_instantiation::spawning::objects::ghost::{GhostSplat, GhostPrefab};
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
 use crate::level_instantiation::spawning::objects::npc::NPCPrefab;
 use crate::level_instantiation::spawning::objects::primitives::CubePrefab;
@@ -138,6 +141,16 @@ fn add_types (
     state.add(
         EditorCategories::Race.to_string(),
         AddItem::component::<CheckpointPrefab>(),
+    );
+
+    state.add(
+        EditorCategories::Ghosts.to_string(),
+        AddItem::component::<GhostPrefab>(),
+    );
+
+    state.add(
+        EditorCategories::Ghosts.to_string(),
+        AddItem::component::<GhostSplat>(),
     );
 }
 

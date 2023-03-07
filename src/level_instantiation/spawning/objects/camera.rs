@@ -1,4 +1,4 @@
-use crate::player_control::actions::create_camera_action_input_manager_bundle;
+use crate::player_control::actions::*;
 use crate::player_control::camera::IngameCamera;
 use anyhow::Result;
 use bevy::prelude::*;
@@ -11,6 +11,10 @@ pub struct CameraPrefab {
 
 }
 
+//the camera should never be directly related to its own transform.
+//the ingame camera has a thirdperson camera type which indirectly dictates the transform
+//of the actual camera object.
+//this way, our "ghosts" can simulate the movement of an actual camera without the actual viewport.
 pub fn build_camera (
     mut commands: Commands,
 
@@ -26,7 +30,8 @@ pub fn build_camera (
                         Camera3dBundle {
                             ..default()
                         },
-                        create_camera_action_input_manager_bundle(),
+                        //they have the same input bundle now.
+                        create_player_action_input_manager_bundle(),
                         Name::new("Main Camera"),
                     ))
                     ;

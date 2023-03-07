@@ -117,6 +117,7 @@ pub fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerA
             (QwertyScanCode::Key9, PlayerAction::NumberedChoice9),
             (QwertyScanCode::Key0, PlayerAction::NumberedChoice0),
         ])
+        //we can bind actions to axes.
         .insert(VirtualDPad::wasd(), PlayerAction::Move)
         .insert(DualAxis::mouse_motion(), PlayerAction::Pan)
         .insert(SingleAxis::mouse_wheel_y(), PlayerAction::Zoom)

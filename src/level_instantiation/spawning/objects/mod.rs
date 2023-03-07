@@ -13,6 +13,7 @@ pub mod spawnpoint;
 pub mod warppoint;
 pub mod skybox;
 pub mod race;
+pub mod ghost;
 
 pub struct ObjectPlugin;
 
@@ -20,6 +21,7 @@ impl Plugin for ObjectPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(race::RacePlugin)
+            .add_plugin(ghost::GhostPlugin)
 
             //this plugin runs all the builder systems for each prefab in the game
             .add_system_set(
