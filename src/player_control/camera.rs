@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 pub use third_person::ThirdPersonCamera;
 use ui::*;
 
+use super::action_handler::ActionMessage;
 use super::actions::PlayerAction;
 
 mod first_person;
@@ -166,29 +167,32 @@ pub fn update_transform(
     time: Res<Time>,
     rapier_context: Res<RapierContext>,
     mut camera: Query<(
-        &ActionState<PlayerAction>,
         &mut IngameCamera,
         &mut Transform,
     )>,
+
+    mut action_evr: EventReader<ActionMessage>,
 ) -> Result<()> {
     #[cfg(feature = "tracing")]
     let _span = info_span!("update_transform").entered();
-    for (actions, mut camera, mut transform) in camera.iter_mut() {
-        let dt = time.delta_seconds();
-        let new_transform = {
-            match &mut camera.kind {
-                IngameCameraKind::ThirdPerson(camera) => {
-                    camera.update_transform(dt, actions, &rapier_context, *transform)
+    for ev in action_evr.iter() {
+        for (mut camera, mut transform) in camera.iter_mut() {
+            let dt = time.delta_seconds();
+            let new_transform = {
+                match &mut camera.kind {
+                    IngameCameraKind::ThirdPerson(camera) => {
+                        camera.update_transform(dt, &ev.action, &rapier_context, *transform)
+                    }
+                    IngameCameraKind::FirstPerson(camera) => {
+                        camera.update_transform(dt, &ev.action, *transform)
+                    }
+                    IngameCameraKind::FixedAngle(camera) => {
+                        camera.update_transform(dt, &ev.action, *transform)
+                    }
                 }
-                IngameCameraKind::FirstPerson(camera) => {
-                    camera.update_transform(dt, actions, *transform)
-                }
-                IngameCameraKind::FixedAngle(camera) => {
-                    camera.update_transform(dt, actions, *transform)
-                }
-            }
-        }?;
-        *transform = new_transform;
+            }?;
+            *transform = new_transform;
+        }
     }
     Ok(())
 }
