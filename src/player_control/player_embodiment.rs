@@ -1,4 +1,3 @@
-use crate::file_system_interaction::audio::AudioHandles;
 use crate::movement::general_movement::{
     apply_jumping, apply_walking, reset_movement_components, Grounded, Jumping, Walking,
 };
@@ -18,6 +17,8 @@ use bevy_rapier3d::prelude::*;
 use leafwing_input_manager::prelude::ActionState;
 use serde::{Deserialize, Serialize};
 use std::ops::DerefMut;
+
+use super::action_handler::ActionMessage;
 
 pub struct PlayerEmbodimentPlugin;
 
@@ -58,55 +59,65 @@ impl Plugin for PlayerEmbodimentPlugin {
 #[reflect(Component, Serialize, Deserialize)]
 pub struct Player;
 
-fn handle_jump(mut player_query: Query<(&ActionState<PlayerAction>, &mut Jumping), With<Player>>) {
+fn handle_jump(
+    mut player_q: Query<&mut Jumping>,
+    mut action_evr: EventReader<ActionMessage>,
+) {
     #[cfg(feature = "tracing")]
     let _span = info_span!("handle_jump").entered();
-    for (actions, mut jump) in &mut player_query {
-        jump.requested |= actions.pressed(PlayerAction::Jump);
+    for ev in action_evr.iter() {
+        for mut jump in player_q.iter_mut() {
+            jump.requested |= ev.action.pressed(PlayerAction::Jump);
+        }
     }
 }
 
+//all the filtering should be handled indirectly, through the evr.
 fn handle_horizontal_movement(
-    mut player_query: Query<(&ActionState<PlayerAction>, &mut Walking, &Transform), With<Player>>,
+    mut player_q: Query<(&mut Walking, &Transform)>,
     camera_query: Query<&IngameCamera>,
+
+    mut action_evr: EventReader<ActionMessage>,
 ) -> Result<()> {
     #[cfg(feature = "tracing")]
     let _span = info_span!("handle_horizontal_movement").entered();
-    let camera = match camera_query.iter().next() {
-        Some(camera) => camera,
-        None => return Ok(()),
-    };
+    for ev in action_evr.iter() {
+        let camera = match camera_query.iter().next() {
+            Some(camera) => camera,
+            None => return Ok(()),
+        };
 
-    for (actions, mut walk, transform) in &mut player_query {
-        if let Some(movement) = actions
-            .axis_pair(PlayerAction::Move)
-            .context("Player movement is not an axis pair")?
-            .max_normalized()
-        {
-            let forward = camera
-                .forward()
-                .split(transform.up())
-                .horizontal
-                .normalize();
-            let sideways = forward.cross(transform.up());
-            let forward_action = forward * movement.y;
-            let sideways_action = sideways * movement.x;
+        if let Ok((mut walk, transform)) = player_q.get(ev.entity) {
+            if let Some(movement) = ev.action
+                .axis_pair(PlayerAction::Move)
+                .context("Player movement is not an axis pair")?
+                .max_normalized()
+            {
+                let forward = camera
+                    .forward()
+                    .split(transform.up())
+                    .horizontal
+                    .normalize();
+                let sideways = forward.cross(transform.up());
+                let forward_action = forward * movement.y;
+                let sideways_action = sideways * movement.x;
 
-            let is_looking_backward = forward.dot(forward_action) < 0.0;
-            let is_first_person = matches!(camera.kind, IngameCameraKind::FirstPerson(_));
-            let modifier = if is_looking_backward && is_first_person {
-                0.7
-            } else {
-                1.
-            };
-            let direction = forward_action * modifier + sideways_action;
+                let is_looking_backward = forward.dot(forward_action) < 0.0;
+                let is_first_person = matches!(camera.kind, IngameCameraKind::FirstPerson(_));
+                let modifier = if is_looking_backward && is_first_person {
+                    0.7
+                } else {
+                    1.
+                };
+                let direction = forward_action * modifier + sideways_action;
 
-            walk.direction = Some(direction);
-            walk.sprinting = actions.pressed(PlayerAction::Sprint);
+                walk.direction = Some(direction);
+                walk.sprinting = ev.action.pressed(PlayerAction::Sprint);
+            }
         }
+        }
+        Ok(())
     }
-    Ok(())
-}
 
 fn handle_camera_kind(
     mut with_player: Query<(&mut Transform, &mut Visibility), With<Player>>,
@@ -132,26 +143,29 @@ fn handle_camera_kind(
     }
 }
 
+//need to handle this more carefully than the others, TODO
 fn handle_speed_effects(
     velocities: Query<&Velocity, With<Player>>,
     mut projections: Query<&mut Projection, With<IngameCamera>>,
+
+    mut action_evr: EventReader<ActionMessage>,
 ) {
     #[cfg(feature = "tracing")]
     let _span = info_span!("handle_speed_effects").entered();
-    for velocity in velocities.iter() {
-        let speed_squared = velocity.linvel.length_squared();
-        for mut projection in projections.iter_mut() {
-            if let Projection::Perspective(ref mut perspective) = projection.deref_mut() {
-                const MAX_SPEED_FOR_FOV: f32 = 12.;
-                const MIN_FOV: f32 = 0.75;
-                const MAX_FOV: f32 = 1.5;
-                let scale = (speed_squared / MAX_SPEED_FOR_FOV.squared())
-                    .min(1.0)
-                    .squared();
-                perspective.fov = MIN_FOV + (MAX_FOV - MIN_FOV) * scale;
+            for velocity in velocities.iter() {
+                let speed_squared = velocity.linvel.length_squared();
+                for mut projection in projections.iter_mut() {
+                    if let Projection::Perspective(ref mut perspective) = projection.deref_mut() {
+                        const MAX_SPEED_FOR_FOV: f32 = 12.;
+                        const MIN_FOV: f32 = 0.75;
+                        const MAX_FOV: f32 = 1.5;
+                        let scale = (speed_squared / MAX_SPEED_FOR_FOV.squared())
+                            .min(1.0)
+                            .squared();
+                        perspective.fov = MIN_FOV + (MAX_FOV - MIN_FOV) * scale;
+                    }
+                }
             }
-        }
-    }
 }
 
 fn rotate_to_speaker(

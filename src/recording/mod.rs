@@ -3,11 +3,15 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::player_control::actions::PlayerAction;
 
+pub mod input;
+
 pub struct RecordingPlugin;
 
 impl Plugin for RecordingPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_plugin(input::ActionInputPlugin)
+            .add_system(record_player_actions)
             ;
     }
 }
@@ -16,7 +20,6 @@ impl Plugin for RecordingPlugin {
 pub struct RecordingTable {
     table: HashMap<String, PlayerRecording>,
 }
-
 pub struct PlayerRecording {
     actions: Vec<PlayerAction>,
 }

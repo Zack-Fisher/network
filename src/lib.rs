@@ -31,6 +31,7 @@ pub mod util;
 pub mod world_interaction;
 pub mod ui;
 pub mod recording;
+pub mod audio;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]
@@ -99,6 +100,7 @@ impl Plugin for GamePlugin {
             .add_plugin(IngameMenuPlugin)
             .add_plugin(UIPlugin)
             .add_plugin(recording::RecordingPlugin)
+            .add_plugin(audio::InternalAudioPlugin)
             ;
 
         #[cfg(feature = "dev")]

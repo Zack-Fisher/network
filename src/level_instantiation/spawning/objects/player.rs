@@ -1,6 +1,7 @@
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
 use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model};
+use crate::player_control::action_handler::ActionStream;
 use crate::player_control::actions::{
     create_player_action_input_manager_bundle, create_ui_action_input_manager_bundle,
 };
@@ -55,7 +56,9 @@ pub fn build_player(
                         },
                         Player,
                         Name::new("Player"),
+                        //the actionstream should be put on the same level as the charcontroller.
                         CharacterControllerBundle::capsule(HEIGHT, RADIUS),
+                        ActionStream::new(),
                         CharacterAnimations {
                             idle: animations.character_idle.clone(),
                             walk: animations.character_walking.clone(),

@@ -1,6 +1,7 @@
 pub mod actions;
 pub mod camera;
 pub mod player_embodiment;
+pub mod action_handler;
 
 pub use crate::player_control::actions::ActionsPlugin;
 pub use crate::player_control::camera::CameraPlugin;
@@ -18,6 +19,7 @@ impl Plugin for PlayerControlPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(ActionsPlugin)
+            .add_plugin(action_handler::ActionBusPlugin)
             .add_plugin(CameraPlugin)
             .add_plugin(PlayerEmbodimentPlugin)
             ;

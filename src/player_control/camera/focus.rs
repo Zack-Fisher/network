@@ -29,7 +29,10 @@ pub fn set_camera_focus(
     Ok(())
 }
 
-pub fn switch_kind(mut camera_query: Query<(&ActionState<PlayerAction>, &mut IngameCamera)>) {
+pub fn switch_kind(
+    mut camera_query: Query<(&ActionState<PlayerAction>, &mut IngameCamera)>
+) 
+{
     const THIRD_TO_FIRST_PERSON_ZOOM_THRESHOLD: f32 = 1.;
     const THIRD_PERSON_TO_FIXED_ANGLE_ZOOM_THRESHOLD: f32 = 9.5;
     for (actions, mut camera) in camera_query.iter_mut() {

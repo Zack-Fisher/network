@@ -28,11 +28,14 @@ impl ActionsFrozen {
     }
 }
 
+use super::action_handler::*;
+
 // This plugin listens for keyboard input and converts the input into Actions
 // Actions can then be used as a resource in other systems to act on the player input.
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<PlayerAction>()
+        app
+            .register_type::<PlayerAction>()
             .register_type::<UiAction>()
             .register_type::<ActionsFrozen>()
             .init_resource::<ActionsFrozen>()

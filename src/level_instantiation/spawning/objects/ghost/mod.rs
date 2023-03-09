@@ -1,6 +1,7 @@
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
 use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model};
+use crate::player_control::action_handler::ActionStream;
 use crate::player_control::actions::{
     create_player_action_input_manager_bundle, create_ui_action_input_manager_bundle,
 };
@@ -82,6 +83,7 @@ pub fn build_ghost(
                         },
                         Name::new("Ghost"),
                         CharacterControllerBundle::capsule(HEIGHT, RADIUS),
+                        ActionStream::new(),
                         CharacterAnimations {
                             idle: animations.character_idle.clone(),
                             walk: animations.character_walking.clone(),
@@ -91,8 +93,6 @@ pub fn build_ghost(
                             GameCollisionGroup::PLAYER.into(), GameCollisionGroup::ALL.into(),
                         ),
                         Ccd::enabled(),
-                        create_player_action_input_manager_bundle(),
-                        create_ui_action_input_manager_bundle(),
                     ))
                     .with_children(|parent| {
                         parent.spawn((

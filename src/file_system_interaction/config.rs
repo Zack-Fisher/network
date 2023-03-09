@@ -105,3 +105,9 @@ impl Default for ThirdPerson {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Serialize, Deserialize)]
+#[reflect(Serialize, Deserialize)]
+pub struct AudioConfig {
+    pub volume: f64,
+}
