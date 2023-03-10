@@ -1,3 +1,4 @@
+use crate::audio::AudioHandles;
 use crate::movement::general_movement::{
     apply_jumping, apply_walking, reset_movement_components, Grounded, Jumping, Walking,
 };
@@ -87,7 +88,7 @@ fn handle_horizontal_movement(
             None => return Ok(()),
         };
 
-        if let Ok((mut walk, transform)) = player_q.get(ev.entity) {
+        if let Ok((mut walk, transform)) = player_q.get_mut(ev.entity) {
             if let Some(movement) = ev.action
                 .axis_pair(PlayerAction::Move)
                 .context("Player movement is not an axis pair")?
@@ -144,6 +145,7 @@ fn handle_camera_kind(
 }
 
 //need to handle this more carefully than the others, TODO
+//this actually shouldn't matter at all. this only applies to the main camera's projection matrix.
 fn handle_speed_effects(
     velocities: Query<&Velocity, With<Player>>,
     mut projections: Query<&mut Projection, With<IngameCamera>>,

@@ -26,11 +26,22 @@ mod ui;
 mod util;
 
 #[derive(
-    Debug, Clone, PartialEq, Component, Reflect, Serialize, Deserialize, FromReflect, Default,
+    Debug, Clone, PartialEq, Component, Reflect, Serialize, Deserialize, FromReflect,
 )]
 #[reflect(Component, Serialize, Deserialize)]
 pub struct IngameCamera {
+    //there's no reason to decouple the entity link here. it's simpler this way.
+    pub entity: Entity,
     pub kind: IngameCameraKind,
+}
+
+impl Default for IngameCamera {
+    fn default() -> Self {
+        Self {
+            entity: Entity::from_raw(0),
+            kind: IngameCameraKind::default(),
+        }
+    }
 }
 
 impl IngameCamera {

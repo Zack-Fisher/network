@@ -68,7 +68,8 @@ pub struct LevelAssets {
         feature = "wasm",
         asset(paths(
             "levels/test/test.lvl.ron",
-            "levels/testtwo/testtwo.lvl.ron"
+            "levels/testtwo/testtwo.lvl.ron",
+            "levels/mvp/mvp.lvl.ron"
         ), collection(typed, mapped))
     )]
     pub levels: HashMap<String, Handle<SerializedLevel>>,

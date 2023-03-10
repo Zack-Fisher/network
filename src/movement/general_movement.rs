@@ -37,12 +37,7 @@ pub struct GeneralMovementPlugin;
 impl Plugin for GeneralMovementPlugin {
     fn build(&self, app: &mut App) {
         app
-            .register_type::<Model>()
-            .register_type::<Grounded>()
-            .register_type::<Jumping>()
-            .register_type::<Velocity>()
-            .register_type::<Walking>()
-            .register_type::<CharacterAnimations>()
+            .add_plugin(CharacterComponentRegistryPlugin)
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
                     .with_system(reset_movement_components)

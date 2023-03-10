@@ -10,6 +10,7 @@ use std::f32::consts::TAU;
 #[uuid = "93a7c64b-4d6e-4420-b8c1-dfca481d9387"]
 pub struct GameConfig {
     pub camera: Camera,
+    pub audio: AudioConfig,
 }
 
 #[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Serialize, Deserialize)]
@@ -106,7 +107,7 @@ impl Default for ThirdPerson {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Serialize, Deserialize, Default)]
 #[reflect(Serialize, Deserialize)]
 pub struct AudioConfig {
     pub volume: f64,

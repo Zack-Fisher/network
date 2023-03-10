@@ -2,6 +2,32 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use serde::{Deserialize, Serialize};
 
+pub struct CharacterComponentRegistryPlugin;
+
+//just for registering all these types into the editor in one neat place.
+impl Plugin for CharacterComponentRegistryPlugin {
+    fn build(&self, app: &mut App) {
+        app
+            .register_type::<Model>()
+            .register_type::<Grounded>()
+            .register_type::<Jumping>()
+            .register_type::<Velocity>()
+            .register_type::<Walking>()
+            .register_type::<CharacterAnimations>()
+            .register_type::<GravityScale>()
+            .register_type::<ColliderMassProperties>()
+            .register_type::<ReadMassProperties>()
+            .register_type::<Damping>()
+            .register_type::<RigidBody>()
+            .register_type::<LockedAxes>()
+            .register_type::<ExternalForce>()
+            .register_type::<ExternalImpulse>()
+            .register_type::<Dominance>()
+
+            ;
+    }
+}
+
 #[derive(Debug, Clone, Bundle)]
 pub struct CharacterControllerBundle {
     pub gravity_scale: GravityScale,
@@ -24,9 +50,9 @@ impl Default for CharacterControllerBundle {
     fn default() -> Self {
         Self {
             read_mass: default(),
-            gravity_scale: GravityScale(1.0),
+            gravity_scale: GravityScale(5.0),
             force: default(),
-            mass: ColliderMassProperties::Mass(3.0),
+            mass: ColliderMassProperties::Mass(6.0),
             walking: default(),
             jumping: default(),
             grounded: default(),
@@ -94,10 +120,10 @@ impl Walking {
 impl Default for Walking {
     fn default() -> Self {
         Self {
-            ground_acceleration: 14.,
-            sprinting_acceleration: 19.,
-            aerial_acceleration: 9.,
-            braking_acceleration: 5.,
+            ground_acceleration: 99.,
+            sprinting_acceleration: 99.,
+            aerial_acceleration: 99.,
+            braking_acceleration: 59.,
             stopping_speed: 0.1,
             direction: None,
             sprinting: false,
@@ -121,7 +147,7 @@ pub struct Jumping {
 impl Default for Jumping {
     fn default() -> Self {
         Self {
-            speed: 3.5,
+            speed: 6.0,
             requested: false,
         }
     }

@@ -49,6 +49,8 @@ use crate::world_interaction::WorldInteractionPlugin;
 use crate::ui::UIPlugin;
 use bevy::prelude::*;
 
+use bevy_pkv::PkvStore;
+
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
     /// During the loading State the LoadingPlugin will load our assets
@@ -87,8 +89,9 @@ impl Plugin for GamePlugin {
         compile_error!("You can only compile with the native-dev feature if you compile with the native feature.");
 
         app
-            .add_state(GameState::Loading)
+            .insert_resource(PkvStore::new("BOONDOK", "Network"))
 
+            .add_state(GameState::Loading)
             .add_plugin(BevyConfigPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(MovementPlugin)

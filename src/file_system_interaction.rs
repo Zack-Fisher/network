@@ -2,6 +2,7 @@ pub mod asset_loading;
 pub mod config;
 pub mod game_state_serialization;
 pub mod level_serialization;
+pub mod users;
 
 use bevy::prelude::*;
 
@@ -20,6 +21,7 @@ pub struct FileSystemInteractionPlugin;
 impl Plugin for FileSystemInteractionPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_plugin(users::UserPlugin)
             .add_plugin(LoadingPlugin)
             .add_plugin(GameStateSerializationPlugin)
             .add_plugin(LevelSerializationPlugin)

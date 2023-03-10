@@ -1,3 +1,4 @@
+use crate::GameState;
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
 use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model};
@@ -9,6 +10,7 @@ use crate::player_control::camera::IngameCamera;
 use crate::player_control::player_embodiment::Player;
 use crate::ui::mapui::MapHandle;
 use anyhow::Result;
+use bevy::asset::LoadState;
 use bevy::prelude::*;
 use bevy::render::render_resource::*;
 use bevy_rapier3d::prelude::*;
@@ -32,10 +34,12 @@ pub struct GhostPlugin;
 impl Plugin for GhostPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_system(build_ghost)
-            .add_system(build_ghost_splat)
-
-            .add_system(processing::ghost_process)
+            .add_system_set(
+                SystemSet::on_update(GameState::Playing)
+                    .with_system(build_ghost)
+                    .with_system(build_ghost_splat)
+                    .with_system(processing::ghost_process)
+            )
             ;
     }
 }
@@ -68,10 +72,6 @@ pub fn build_ghost(
     scenes: Res<SceneAssets>,
 
     prefab_q: Query<(Entity, &GhostPrefab), Added<GhostPrefab>>,
-
-    mut map_handle: ResMut<MapHandle>,
-
-    mut images: ResMut<Assets<Image>>,
 )
 {
     for (ent, ghost_prefab) in prefab_q.iter() {
@@ -146,14 +146,8 @@ fn generate_splat_vectors (
 
 pub fn build_ghost_splat (
     mut commands: Commands,
-    animations: Res<AnimationAssets>,
-    scenes: Res<SceneAssets>,
 
     mut prefab_q: Query<(Entity, &GhostSplat), Added<GhostSplat>>,
-
-    mut map_handle: ResMut<MapHandle>,
-
-    mut images: ResMut<Assets<Image>>,
 )
 {
     for (ghost_splat, splat_comp) in prefab_q.iter_mut() {

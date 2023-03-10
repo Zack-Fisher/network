@@ -77,7 +77,6 @@ pub fn checkpoint_process (
     mut racetable: ResMut<RaceTable>,
 )
 {
-
     for player_gtf in player_q.iter() {
         for (checkpoint_gtf, mut checkpoint_prefab) in checkpoint_q.iter_mut() {
             let mut race_data = match racetable.table.get_mut(&format!("{:?}", checkpoint_prefab.race_name)) {

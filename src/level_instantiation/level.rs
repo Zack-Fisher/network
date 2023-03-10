@@ -2,18 +2,13 @@ use bevy::prelude::*;
 
 use serde::{Serialize, Deserialize};
 
-#[derive(Component, Reflect, Serialize, Deserialize, Debug, Clone, Eq, PartialEq, Hash, strum_macros::EnumIter)]
+#[derive(Component, Reflect, Serialize, Deserialize, Debug, Clone, Eq, PartialEq, Hash, strum_macros::EnumIter, Default)]
 #[reflect(Component, Serialize, Deserialize)]
 pub enum Levels {
+    #[default]
     Test,
     Testtwo,
-}
-
-impl Default for Levels {
-    fn default() -> Self
-    {
-        Self::Test
-    }
+    MVP,
 }
 
 impl Levels {
@@ -22,6 +17,7 @@ impl Levels {
         match self {
             Self::Test => "levels/test/test.lvl.ron",
             Self::Testtwo => "levels/testtwo/testtwo.lvl.ron",
+            Self::MVP => "levels/mvp/mvp.lvl.ron",
         }
     }
 }

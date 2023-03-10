@@ -1,4 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
+use bevy_pkv::PkvStore;
 use strum::IntoEnumIterator;
 
 use crate::GameState;
@@ -6,8 +7,11 @@ use crate::GameState;
 use serde::{Serialize, Deserialize};
 
 pub mod checkpoint;
+pub mod serialization;
 
 use checkpoint::*;
+
+use self::serialization::{RaceTableSave, RaceTableLoad};
 
 pub struct RacePlugin;
 
@@ -15,6 +19,8 @@ impl Plugin for RacePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_state(RaceState::Paused)
+
+            .add_plugin(serialization::RaceSerializationPlugin)
 
             .add_event::<FlushCheckpointCounts>()
             .add_event::<ActivateRace>()
@@ -28,6 +34,7 @@ impl Plugin for RacePlugin {
             )
 
             .add_startup_system(racetable_init)
+
             .add_system(racetable_process)
             .add_system(race_process)
 
@@ -44,17 +51,12 @@ impl Plugin for RacePlugin {
 //we'll pull this out into a enum to make things easier in design.
 //we'll also reduce the amount of work we're doing per race with a cool trick.
 //if we derive debug, we can automatically convert any variant to a stable string.
-#[derive(Component, Reflect, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash, strum_macros::EnumIter)]
+#[derive(Component, Reflect, Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash, strum_macros::EnumIter, Default)]
 #[reflect(Component, Serialize, Deserialize)]
 pub enum Races {
+    #[default]
     TestRace,
     BetaRace,
-}
-
-impl Default for Races {
-    fn default() -> Self {
-        Self::TestRace
-    }
 }
 
 //the RaceState is polled for by things like the racetimer.
@@ -67,20 +69,21 @@ pub enum RaceState {
 //PUT EVERYTHING IN THE SAME DATA STRUCTURE.
 //STOP SUCKING AT RUST
 //OH MY GOD
-#[derive(Resource, Debug)]
+#[derive(Resource, Debug, Serialize, Deserialize)]
 pub struct RaceTable {
     pub table: HashMap<String, RaceData>,
     pub active_race: String,
     pub is_racing: bool,
 }
 
+/// just sends an event to the appropriate module.
+/// this will attempt to load from memory, then initialize a new racetable if it's not found.
+/// then, the initted table will be loaded to the resource and saved to memory.
 fn racetable_init (
-    mut racetable: ResMut<RaceTable>,    
+    mut loadtable_evw: EventWriter<RaceTableLoad>,
 )
 {
-    for race_value in Races::iter() {
-        racetable.table.insert(format!("{:?}", race_value).clone(), RaceData::default());
-    }
+    loadtable_evw.send(RaceTableLoad);
 }
 
 //the racetable should poll the World and manage itself accordingly.
@@ -127,6 +130,8 @@ fn race_process (
     mut flush_evr: EventReader<FlushCheckpointCounts>,
     mut activate_evr: EventReader<ActivateRace>,
 
+    mut racesave_evw: EventWriter<RaceTableSave>,
+
     time: Res<Time>,
 )
 {
@@ -150,7 +155,6 @@ fn race_process (
             }
         };
     }
-
 
     for ev in activate_evr.iter() {
         //if it's already activated in the hashmap, continue.
@@ -202,6 +206,7 @@ fn race_process (
         race_data.curr_time += time.delta_seconds();
 
         if race_data.hit_count >= race_data.checkpoint_count {
+            //THE RACE IS FINISHED
             info!("finished race");
             match race_data.best_time {
                 Some(time) => {
@@ -221,6 +226,9 @@ fn race_process (
             race_data.curr_time = 0.0;
             race_data.amount_finished += 1;
             race_data.is_active = false;
+
+            //save to localstorage each time a race has finished.
+            racesave_evw.send(RaceTableSave);
         }
     }
 }

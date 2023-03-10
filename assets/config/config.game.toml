@@ -11,7 +11,7 @@ translation_smoothing = 50.0
 
 [camera.first_person]
 translation_smoothing = 50.0
-rotation_smoothing = 45.0
+rotation_smoothing = 45.0 
 most_acute_from_above = 0.62831855 # TAU / 10.
 most_acute_from_below = 0.8975979 # TAU / 7.
 
@@ -25,3 +25,6 @@ min_distance = 0.01
 max_distance = 10.0
 zoom_speed = 0.7
 min_distance_to_objects = 5e-1
+
+[audio]
+volume = 0.99

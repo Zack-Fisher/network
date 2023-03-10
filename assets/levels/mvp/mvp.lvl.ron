@@ -1,0 +1,4 @@
+(
+    scene_path: "levels/mvp/mvp.glb",
+    dynamic_path: "levels/mvp/mvp.scn.ron"
+)
