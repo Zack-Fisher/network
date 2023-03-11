@@ -1,3 +1,5 @@
+use std::f32::consts::E;
+
 use bevy::{prelude::*, utils::HashMap};
 
 //keeps track of the current user and loads new ones, all from a resource.
@@ -20,6 +22,8 @@ impl Plugin for UserPlugin {
 
             .add_event::<SaveUserTable>()
             .add_event::<InitUserTable>()
+
+            .add_startup_system(table_initter)
 
             .add_system(save_user_table_process)
             .add_system(init_user_table_process)
@@ -70,11 +74,20 @@ pub struct SaveUser {
 }
 
 fn load_user_process (
+    mut table: ResMut<UserTable>,
+
     mut load_evr: EventReader<LoadUser>,
 )
 {
     for ev in load_evr.iter() {
-
+        if let Some(_) = table.table.get_mut(&ev.name.clone()) {
+            //we found the name in the table, so set it as the active name.
+            info!("the requested name {} was found, setting it as the active name...", ev.name.clone());
+            table.current_user = Some(ev.name.clone());
+        } else {
+            //we couldn't find it! error!
+            error!("the requested name {} was not found in the table!!!", ev.name.clone());
+        }
     }
 }
 
@@ -83,11 +96,17 @@ fn load_user_process (
 fn save_user_process (
     mut save_evr: EventReader<SaveUser>,
 
-    mut pkv: ResMut<PkvStore>,
+    mut table: ResMut<UserTable>,
 )
 {
     for ev in save_evr.iter() {
-        
+        if let Some(_) = table.table.get_mut(&ev.user.name.clone()) {
+            //these cases will probably be relevant later
+            //the player's data from the name was found, so overwrite the save
+        } else {
+            //the player's data was not found.
+        }
+        table.table.insert(ev.user.name.clone(), ev.user.clone());
     }   
 }
 
@@ -132,4 +151,11 @@ fn init_user_table_process (
             save_evw.send(SaveUserTable);
         }
     }
+}
+
+fn table_initter (
+    mut init_evw: EventWriter<InitUserTable>,
+)
+{
+    init_evw.send(InitUserTable);
 }

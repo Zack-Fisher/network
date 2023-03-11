@@ -1,4 +1,5 @@
 use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
+use crate::level_instantiation::spawning::objects::ghost::GhostPrefab;
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
 use crate::level_instantiation::spawning::objects::race::FlushCheckpointCounts;
 use crate::level_instantiation::spawning::objects::skybox::SkyboxPrefab;
@@ -163,7 +164,17 @@ fn load_world(
                                 ..default()
                             }
                         )
-                    );
+                    )
+                    ;
+
+                children
+                    .spawn(
+                        SpatialBundle::default()
+                    )
+                    .insert(
+                        GhostPrefab::default()
+                    )
+                    ;
             })
             .insert(ConstantLevel)
             .insert(Name::new("Constants"))

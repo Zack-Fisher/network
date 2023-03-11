@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 
 use bevy::{prelude::*, utils::HashMap};
+use bevy_pkv::PkvStore;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::player_control::{actions::PlayerAction, player_embodiment::Player};
@@ -12,11 +13,20 @@ pub struct RecordingPlugin;
 impl Plugin for RecordingPlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(CurrentRecording {
-                actions: vec![],
+            .insert_resource(RecordingTable {
+                table: HashMap::new(),
+                curr_recording: None,
             })
 
-            .add_event::<SaveRecording>()
+            .add_event::<SaveRecordingTable>()
+            .add_event::<InitRecordingTable>()
+
+            .add_system(save_table_process)
+            .add_system(init_table_process)
+
+            .add_startup_system(table_initter)
+
+            .add_system(current_recording_manager)
 
             .add_plugin(input::ActionInputPlugin)
             .add_system(record_player_actions)
@@ -24,53 +34,91 @@ impl Plugin for RecordingPlugin {
     }
 }
 
-use serde::{Serialize, Deserialize};
-
-//dump all input into this one vector, decide seperately whether to dump it into memory.
-//be careful not to overload this vector.
-#[derive(Default, Component, Reflect, Serialize, Deserialize, Resource)]
-#[reflect(Component, Serialize, Deserialize)]
-pub struct CurrentRecording {
-    actions: Vec<ActionState<PlayerAction>>,
-}
-
-//write to localstorage with wasm bevy_pkv if using the web build
-
-//write to disk if not?
-//should this all be the same file? probably not.
-//either way, make writing its own seperate thing, since we have to do two kinds of writing
-
 fn record_player_actions (
     mut player_action_q: Query<&ActionState<PlayerAction>, With<Player>>,
 
-    mut curr_recording: ResMut<CurrentRecording>,
-
-    time: Res<Time>,
+    mut local_table: ResMut<RecordingTable>,
 )
 {
-    for player_actions in player_action_q.iter_mut() {
-        curr_recording.actions.push(player_actions.clone());       
+    match local_table.curr_recording.clone() {
+        Some(recording_name) => {
+            if let Some(action_vec) = local_table.table.get_mut(&recording_name.clone()) {
+                for player_actions in player_action_q.iter_mut() {
+                    action_vec.push_back(player_actions.clone());
+                }
+            } else {
+                //if the current recordingname isn't present, make a new one and start recording in it.
+                info!("recording not found! creating new recordingtable elm at {}", recording_name.clone());
+                local_table.table.insert(recording_name.clone(), VecDeque::new());
+            }
+        }
+        None => {
+            //we're not recording right now.
+        }
     }
 }
 
-pub struct SaveRecording {
-
-}
-
-fn save_to_storage (
-    mut curr_recording: ResMut<CurrentRecording>,
-
-    mut save_evr: EventReader<SaveRecording>,
+fn current_recording_manager (
+    mut local_table: ResMut<RecordingTable>,
 )
 {
-    for ev in save_evr.iter() {
-        let mut deque: VecDeque<ActionState<PlayerAction>> = VecDeque::new();
+    local_table.curr_recording = Some("john".to_string());
+}
 
-        deque.extend(curr_recording.actions.clone());
-        
-        //TODO: implement writing this to disk with wasm and filesys
+pub struct SaveRecordingTable;
 
-        //clear out the current actions list.
-        curr_recording.actions = vec![];
+pub struct InitRecordingTable;
+
+const RECORDINGTABLE_KEY: &str = "recordingtable";
+
+#[derive(Resource)]
+pub struct RecordingTable {
+    pub table: HashMap<String, VecDeque<ActionState<PlayerAction>>>,
+
+    /// this is the member of the table that it's currently recording all player actions to.
+    /// we're not always recording, so make this an option.
+    pub curr_recording: Option<String>,
+}
+
+fn save_table_process (
+    mut pkv: ResMut<PkvStore>,
+    local_table: ResMut<RecordingTable>,
+
+    mut save_evr: EventReader<SaveRecordingTable>,
+)
+{
+    for _ in save_evr.iter() {
+        info!("saving the recordingtable to memory...");
+        pkv.set::<HashMap<String, VecDeque<ActionState<PlayerAction>>>>(RECORDINGTABLE_KEY, &local_table.table.clone());
     }
+}
+
+fn init_table_process (
+    mut pkv: ResMut<PkvStore>,
+    mut local_table: ResMut<RecordingTable>,
+    mut save_evw: EventWriter<SaveRecordingTable>,
+
+    mut init_evr: EventReader<InitRecordingTable>,
+)
+{
+    for _ in init_evr.iter() {
+        if let Ok(saved_table) = pkv.get::<HashMap<String, VecDeque<ActionState<PlayerAction>>>>(RECORDINGTABLE_KEY) {
+            info!("found the recordingtable saved from memory. loading it into the app...");
+
+            local_table.table = saved_table.clone();
+        } else {
+            info!("couldn't find a recordingtable in memory. making a new one...");
+            local_table.table = HashMap::new();
+
+            info!("created recordingtable! saving to memory...");
+            save_evw.send(SaveRecordingTable);
+        }
+    }
+}
+
+fn table_initter (
+    mut init_evw: EventWriter<InitRecordingTable>,
+)
+{
+    init_evw.send(InitRecordingTable);
 }
