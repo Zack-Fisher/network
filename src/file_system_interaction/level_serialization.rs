@@ -1,5 +1,6 @@
 use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
 use crate::level_instantiation::spawning::objects::ghost::{GhostPrefab, GhostSplat};
+use crate::level_instantiation::spawning::objects::npc::NPCPrefab;
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
 use crate::level_instantiation::spawning::objects::race::FlushCheckpointCounts;
 use crate::level_instantiation::spawning::objects::skybox::SkyboxPrefab;
@@ -150,7 +151,10 @@ fn load_world(
 
                 children
                     .spawn(
-                        SpatialBundle::default()
+                        SpatialBundle {
+                            transform: Transform::from_xyz(0.0, 5.0, 5.0),
+                            ..default()
+                        }
                     )
                     .insert(
                         GhostPrefab::default()
@@ -159,15 +163,17 @@ fn load_world(
 
                 children
                     .spawn(
-                        SpatialBundle::default()
-                    )
-                    .insert(
-                        GhostSplat {
-                            max_distance: 50.0,
-                            count: 500,
+                        SpatialBundle {
+                            transform: Transform::from_xyz(-3.0, 1.0, -4.0),
+                            ..default()
                         }
                     )
+                    .insert(
+                        NPCPrefab::default()
+                    )
                     ;
+
+
             })
             .insert(ConstantLevel)
             .insert(Name::new("Constants"))

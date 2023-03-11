@@ -23,7 +23,8 @@ mod resources;
 pub struct DialogPlugin;
 impl Plugin for DialogPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(EguiPlugin)
+        app
+            .add_plugin(EguiPlugin)
             .register_type::<DialogId>()
             .add_event::<DialogEvent>()
             .add_system_set(

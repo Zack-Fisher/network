@@ -1,6 +1,7 @@
 pub mod condition;
 pub mod dialog;
 pub mod interactions_ui;
+pub mod textbox;
 
 use crate::world_interaction::condition::ConditionPlugin;
 use crate::world_interaction::dialog::DialogPlugin;
@@ -16,6 +17,7 @@ pub struct WorldInteractionPlugin;
 impl Plugin for WorldInteractionPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_plugin(textbox::TextboxPlugin)
             .add_plugin(ConditionPlugin)
             .add_plugin(DialogPlugin)
             .add_plugin(InteractionsUiPlugin);

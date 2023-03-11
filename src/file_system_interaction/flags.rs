@@ -46,9 +46,8 @@ fn save_flag_process (
     flags: Res<FlagsTable>,
 )
 {
-    info!("saving all flags to memory...");
-
     for _ in save_evr.iter() {
+        info!("saving all flags to memory...");
         for (key, value) in flags.table.iter() {
             info!("saving {} at key {} into memory...", key.clone(), value.clone());
 
@@ -64,8 +63,8 @@ fn init_flag_process (
     mut flags: ResMut<FlagsTable>,
 )
 {
-    info!("loading all keys from memory into the flagtable...");
     for _ in init_evr.iter() {
+        info!("loading all keys from memory into the flagtable...");
         for (key, _) in flags.table.clone().iter() {
             //we should really only be putting bools in the flag table.
             if let Ok(new_value) = pkv.get::<bool>(&key.clone()) {
