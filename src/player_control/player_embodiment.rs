@@ -83,40 +83,38 @@ fn handle_horizontal_movement(
     #[cfg(feature = "tracing")]
     let _span = info_span!("handle_horizontal_movement").entered();
     for ev in action_evr.iter() {
-        let camera = match camera_query.iter().next() {
-            Some(camera) => camera,
-            None => return Ok(()),
-        };
+        if let Ok(camera) = camera_query.get(ev.camera_entity) {
+            if let Ok((mut walk, transform)) = player_q.get_mut(ev.entity) {
+                if let Some(movement) = ev.action
+                    .axis_pair(PlayerAction::Move)
+                    .context("Player movement is not an axis pair")?
+                    .max_normalized()
+                {
+                    let forward = camera
+                        .forward()
+                        .split(transform.up())
+                        .horizontal
+                        .normalize();
+                    let sideways = forward.cross(transform.up());
+                    let forward_action = forward * movement.y;
+                    let sideways_action = sideways * movement.x;
 
-        if let Ok((mut walk, transform)) = player_q.get_mut(ev.entity) {
-            if let Some(movement) = ev.action
-                .axis_pair(PlayerAction::Move)
-                .context("Player movement is not an axis pair")?
-                .max_normalized()
-            {
-                let forward = camera
-                    .forward()
-                    .split(transform.up())
-                    .horizontal
-                    .normalize();
-                let sideways = forward.cross(transform.up());
-                let forward_action = forward * movement.y;
-                let sideways_action = sideways * movement.x;
+                    let is_looking_backward = forward.dot(forward_action) < 0.0;
+                    let is_first_person = matches!(camera.kind, IngameCameraKind::FirstPerson(_));
+                    let modifier = if is_looking_backward && is_first_person {
+                        0.7
+                    } else {
+                        1.
+                    };
+                    let direction = forward_action * modifier + sideways_action;
 
-                let is_looking_backward = forward.dot(forward_action) < 0.0;
-                let is_first_person = matches!(camera.kind, IngameCameraKind::FirstPerson(_));
-                let modifier = if is_looking_backward && is_first_person {
-                    0.7
-                } else {
-                    1.
-                };
-                let direction = forward_action * modifier + sideways_action;
-
-                walk.direction = Some(direction);
-                walk.sprinting = ev.action.pressed(PlayerAction::Sprint);
+                    walk.direction = Some(direction);
+                    walk.sprinting = ev.action.pressed(PlayerAction::Sprint);
+                }
+            }
             }
         }
-        }
+
         Ok(())
     }
 
