@@ -3,6 +3,7 @@ pub mod config;
 pub mod game_state_serialization;
 pub mod level_serialization;
 pub mod users;
+pub mod flags;
 
 use bevy::prelude::*;
 
@@ -25,6 +26,7 @@ impl Plugin for FileSystemInteractionPlugin {
             .add_plugin(LoadingPlugin)
             .add_plugin(GameStateSerializationPlugin)
             .add_plugin(LevelSerializationPlugin)
+            .add_plugin(flags::FlagPlugin)
             ;
     }
 }

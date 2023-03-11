@@ -2079,6 +2079,7 @@ dependencies = [
  "regex",
  "ron 0.8.0",
  "serde",
+ "serde_json",
  "strum",
  "strum_macros",
  "unicode-segmentation",

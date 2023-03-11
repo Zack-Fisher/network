@@ -62,6 +62,7 @@ image = { version = "0.24", default-features = false }
 iyes_loopless = "0.9.1"
 bevy_pkv = {version = "0.6.0", features = ["bevy"]}
 futures-lite = "1.12.0"
+serde_json = "1.0.94"
 
 [build-dependencies]
 embed-resource = "1.4"
