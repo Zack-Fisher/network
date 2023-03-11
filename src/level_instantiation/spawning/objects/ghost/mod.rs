@@ -1,7 +1,7 @@
 use crate::GameState;
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
-use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model};
+use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model, CameraEntityLink};
 use crate::player_control::action_handler::ActionStream;
 use crate::player_control::actions::{
     create_player_action_input_manager_bundle, create_ui_action_input_manager_bundle,
@@ -76,6 +76,16 @@ pub fn build_ghost(
 {
     for (ent, ghost_prefab) in prefab_q.iter() {
         commands.entity(ent).with_children(|children| {
+                let camera_entity = children
+                    .spawn((
+                        SpatialBundle::default(),
+                        IngameCamera::default(),
+                        Name::new("Ghost Camera"),
+                        GhostCamera,
+                    ))
+                    .id()
+                    ;
+
                 let e_com = children
                     .spawn((
                         PbrBundle {
@@ -93,6 +103,8 @@ pub fn build_ghost(
                             GameCollisionGroup::PLAYER.into(), GameCollisionGroup::ALL.into(),
                         ),
                         Ccd::enabled(),
+                        //we're linking the entity to its camera, so that we don't trigger every IngameCamera with each action.
+                        CameraEntityLink {camera_entity},
                     ))
                     .with_children(|parent| {
                         parent.spawn((
@@ -113,36 +125,10 @@ pub fn build_ghost(
                     ;
             });
 
-            commands.entity(ent)
-                .with_children(|children| {
-                    children
-                        .spawn((
-                            SpatialBundle::default(),
-                            IngameCamera::default(),
-                            Name::new("Ghost Camera"),
-                        ))
-                        ;
-                })
-                .insert(GhostCamera)
-                ;
     }
 }
 
-fn generate_splat_vectors (
-    max_distance: f32,
-    count: u32,
-) -> Vec<Vec3>
-{
-    // let mut return_vecs: Vec<Vec3>> = vec![];
-
-    // for _ in 0..count {
-    //     let mut curr_vector = Vec3::ZERO;
-
-    //     return_vecs.push(curr_vector);
-    // }
-
-    vec![]
-}
+use rand::Rng;
 
 pub fn build_ghost_splat (
     mut commands: Commands,
@@ -153,16 +139,24 @@ pub fn build_ghost_splat (
     for (ghost_splat, splat_comp) in prefab_q.iter_mut() {
         let mut ent_coms = commands.entity(ghost_splat);
 
-        let vecs = generate_splat_vectors(splat_comp.max_distance, splat_comp.count);
+        let mut vec: Vec<Transform> = vec![];
+
+        let mut rng = rand::thread_rng();
+
+        for _ in 1..splat_comp.count {
+            vec.push(
+                Transform::from_xyz(rng.gen_range(-splat_comp.max_distance..=splat_comp.max_distance), 0.0, rng.gen_range(-splat_comp.max_distance..=splat_comp.max_distance))
+            )
+        }
 
         ent_coms.with_children(
             |children| {
-                for vec in vecs {
+                for tf in vec {
                     children
                         .spawn(
                             (
                                 SpatialBundle {
-                                    transform: Transform::from_translation(vec),
+                                    transform: tf,
                                     ..default()
                                 },
                                 GhostPrefab::default(),

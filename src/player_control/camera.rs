@@ -1,5 +1,6 @@
 use crate::file_system_interaction::asset_loading::ConfigAssets;
 use crate::file_system_interaction::config::GameConfig;
+use crate::movement::general_movement::CameraEntityLink;
 use crate::player_control::actions::{ActionsFrozen};
 use crate::player_control::camera::focus::{set_camera_focus, switch_kind};
 use crate::util::log_error::log_errors;
@@ -26,22 +27,11 @@ mod ui;
 mod util;
 
 #[derive(
-    Debug, Clone, PartialEq, Component, Reflect, Serialize, Deserialize, FromReflect,
+    Debug, Clone, PartialEq, Component, Reflect, Serialize, Deserialize, FromReflect, Default
 )]
 #[reflect(Component, Serialize, Deserialize)]
 pub struct IngameCamera {
-    //there's no reason to decouple the entity link here. it's simpler this way.
-    pub entity: Entity,
     pub kind: IngameCameraKind,
-}
-
-impl Default for IngameCamera {
-    fn default() -> Self {
-        Self {
-            entity: Entity::from_raw(0),
-            kind: IngameCameraKind::default(),
-        }
-    }
 }
 
 impl IngameCamera {
@@ -187,7 +177,8 @@ pub fn update_transform(
     #[cfg(feature = "tracing")]
     let _span = info_span!("update_transform").entered();
     for ev in action_evr.iter() {
-        for (mut camera, mut transform) in camera.iter_mut() {
+        //we've abstracted the camera_entity linking into the action emitter itself, so we don't have to deal with it here.
+        if let Ok((mut camera, mut transform)) = camera.get_mut(ev.camera_entity) {
             let dt = time.delta_seconds();
             let new_transform = {
                 match &mut camera.kind {

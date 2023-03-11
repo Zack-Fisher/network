@@ -3,9 +3,9 @@ use std::collections::VecDeque;
 use bevy::{prelude::*, utils::HashMap};
 use leafwing_input_manager::prelude::ActionState;
 
-use crate::recording::RecordingTable;
+use crate::{recording::RecordingTable, movement::general_movement::CameraEntityLink};
 
-use super::actions::PlayerAction;
+use super::{actions::PlayerAction, player_embodiment::Player};
 
 pub struct ActionBusPlugin;
 
@@ -36,7 +36,10 @@ impl ActionStream {
 //we send a playeraction to the line and .get() the related components from the query.
 //this way, we can apply input transformations to the right entities.
 pub struct ActionMessage {
+    //the entity of the character
     pub entity: Entity,
+    //the disconnected entity of the camera/IngameCamera that is following the character.
+    pub camera_entity: Entity,
     pub action: ActionState<PlayerAction>,
 }
 
@@ -49,15 +52,21 @@ pub struct ActionBus;
 fn apply_action (
     mut action_q: Query<(Entity, &mut ActionStream)>,
 
+    cameralink_q: Query<&CameraEntityLink>,
+
     mut action_evw: EventWriter<ActionMessage>,
 )
 {
     for (entity, mut action_stream) in action_q.iter_mut() {
+        //get the associated camera with the entity, for the purposes of reference.
+        //this is used primarily in the update_transform method of camera.rs
+        let c_ent = cameralink_q.get(entity).unwrap().camera_entity;
         match action_stream.actions.pop_front() {
             Some(action) => {
                 action_evw.send(
                     ActionMessage {
                         entity,
+                        camera_entity: c_ent.clone(),
                         action,
                     }
                 )
@@ -75,7 +84,8 @@ use rand::seq::SliceRandom;
 fn choose_action_from_table (
     mut local_recordingtable: ResMut<RecordingTable>,
 
-    mut action_q: Query<&mut ActionStream>,
+    //don't repopulate the player's actionstream, naturally.
+    mut action_q: Query<(&mut ActionStream), Without<Player>>,
 )
 {
     for mut action_c in action_q.iter_mut() {

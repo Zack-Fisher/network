@@ -1,10 +1,11 @@
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
-use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model};
+use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model, CameraEntityLink};
 use crate::player_control::action_handler::ActionStream;
 use crate::player_control::actions::{
     create_player_action_input_manager_bundle, create_ui_action_input_manager_bundle,
 };
+use crate::player_control::camera::IngameCamera;
 use crate::player_control::player_embodiment::Player;
 use crate::ui::mapui::MapHandle;
 use anyhow::Result;
@@ -49,6 +50,21 @@ pub fn build_player(
 {
     for (ent, player_prefab) in prefab_q.iter() {
         commands.entity(ent).with_children(|children| {
+                // spawn the camera that will be linked to the main player.
+                // this both has an IngameCamera for the manipulation of its transform but also the 3d camera for viewing.
+                let cam_id = children
+                    .spawn((
+                        IngameCamera::default(),
+                        Camera3dBundle {
+                            ..default()
+                        },
+                        //they have the same input bundle now.
+                        create_player_action_input_manager_bundle(),
+                        Name::new("Main Camera"),
+                    ))
+                    .id()
+                    ;
+
                 let e_com = children
                     .spawn((
                         PbrBundle {
@@ -70,6 +86,7 @@ pub fn build_player(
                         Ccd::enabled(),
                         create_player_action_input_manager_bundle(),
                         create_ui_action_input_manager_bundle(),
+                        CameraEntityLink {camera_entity: cam_id.clone()},
                     ))
                     .with_children(|parent| {
                         parent.spawn((

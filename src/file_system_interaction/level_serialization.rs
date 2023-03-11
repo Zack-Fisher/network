@@ -1,5 +1,5 @@
 use crate::level_instantiation::spawning::objects::camera::CameraPrefab;
-use crate::level_instantiation::spawning::objects::ghost::GhostPrefab;
+use crate::level_instantiation::spawning::objects::ghost::{GhostPrefab, GhostSplat};
 use crate::level_instantiation::spawning::objects::player::PlayerPrefab;
 use crate::level_instantiation::spawning::objects::race::FlushCheckpointCounts;
 use crate::level_instantiation::spawning::objects::skybox::SkyboxPrefab;
@@ -150,20 +150,10 @@ fn load_world(
 
                 children
                     .spawn(
-                        (
-                            CameraPrefab {},
-                            SpatialBundle::default(),
-                        )
-                    );
-
-                children
-                    .spawn(
-                        (
-                            PointLightBundle {
-                                transform: Transform::from_xyz(5., 5., 5.),
-                                ..default()
-                            }
-                        )
+                        SpatialBundle::default()
+                    )
+                    .insert(
+                        GhostPrefab::default()
                     )
                     ;
 
@@ -172,7 +162,10 @@ fn load_world(
                         SpatialBundle::default()
                     )
                     .insert(
-                        GhostPrefab::default()
+                        GhostSplat {
+                            max_distance: 50.0,
+                            count: 500,
+                        }
                     )
                     ;
             })

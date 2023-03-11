@@ -67,7 +67,7 @@ fn handle_jump(
     #[cfg(feature = "tracing")]
     let _span = info_span!("handle_jump").entered();
     for ev in action_evr.iter() {
-        for mut jump in player_q.iter_mut() {
+        if let Ok(mut jump) = player_q.get_mut(ev.entity) {
             jump.requested |= ev.action.pressed(PlayerAction::Jump);
         }
     }

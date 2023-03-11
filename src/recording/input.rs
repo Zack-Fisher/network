@@ -13,6 +13,7 @@ impl Plugin for ActionInputPlugin {
     }
 }
 
+/// THIS IS THE SYSTEM THAT ALLOWS THE PLAYER TO MOVE NORMALLY.
 fn handle_player_input (
     mut player_q: Query<(&ActionState<PlayerAction>, &mut ActionStream), With<Player>>,
 )

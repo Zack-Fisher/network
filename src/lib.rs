@@ -32,6 +32,7 @@ pub mod world_interaction;
 pub mod ui;
 pub mod recording;
 pub mod audio;
+pub mod network;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]

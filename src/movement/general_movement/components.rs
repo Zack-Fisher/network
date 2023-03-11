@@ -28,6 +28,13 @@ impl Plugin for CharacterComponentRegistryPlugin {
     }
 }
 
+//we need the Character to be aware of its own IngameCamera.
+//we use this type for query filtering exclusively.
+#[derive(Component)]
+pub struct CameraEntityLink {
+    pub camera_entity: Entity,
+}
+
 #[derive(Debug, Clone, Bundle)]
 pub struct CharacterControllerBundle {
     pub gravity_scale: GravityScale,
