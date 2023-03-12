@@ -85,7 +85,6 @@ pub fn build_player(
                         ),
                         Ccd::enabled(),
                         create_player_action_input_manager_bundle(),
-                        create_ui_action_input_manager_bundle(),
                         CameraEntityLink {camera_entity: cam_id.clone()},
                     ))
                     .with_children(|parent| {

@@ -28,6 +28,8 @@ impl ActionsFrozen {
     }
 }
 
+use crate::ui::UIState;
+
 use super::action_handler::*;
 
 // This plugin listens for keyboard input and converts the input into Actions
@@ -39,12 +41,33 @@ impl Plugin for ActionsPlugin {
             .register_type::<UiAction>()
             .register_type::<ActionsFrozen>()
             .init_resource::<ActionsFrozen>()
+
             .add_plugin(InputManagerPlugin::<PlayerAction>::default())
+            .init_resource::<ToggleActions<PlayerAction>>()
+            .add_system(freeze_player_input)
+
             .add_plugin(InputManagerPlugin::<UiAction>::default())
             .add_system_to_stage(
                 CoreStage::PreUpdate,
                 remove_actions_when_frozen.after(InputManagerSystem::ManualControl),
             );
+    }
+}
+
+/// if the ui is holding up focus, freeze all Player input on the input stream directly.
+fn freeze_player_input (
+    mut toggler: ResMut<ToggleActions<PlayerAction>>,
+
+    ui_state: Res<State<UIState>>,
+)
+{
+    match ui_state.current().clone() {
+        UIState::NoFocus => {
+            toggler.enabled = true;
+        }
+        _ => {
+            toggler.enabled = false;
+        }
     }
 }
 
@@ -100,6 +123,8 @@ pub enum UiAction {
     #[default]
     TogglePause,
     ToggleMap,
+    ToggleChat,
+    FocusChat,
 }
 
 pub fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerAction> {
@@ -133,7 +158,9 @@ pub fn create_ui_action_input_manager_bundle() -> InputManagerBundle<UiAction> {
     InputManagerBundle {
         input_map: InputMap::new([
             (QwertyScanCode::Escape, UiAction::TogglePause),
-            (QwertyScanCode::T, UiAction::ToggleMap),
+            (QwertyScanCode::U, UiAction::ToggleMap),
+            (QwertyScanCode::Y, UiAction::ToggleChat),
+            (QwertyScanCode::T, UiAction::FocusChat),
             ]),
         ..default()
     }

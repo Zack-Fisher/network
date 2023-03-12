@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::ActionState;
 
-use crate::player_control::actions::UiAction;
+use crate::{player_control::actions::UiAction, ui::MAPLAYER};
 
 pub struct MapUIPlugin;
 
@@ -39,7 +39,7 @@ fn build_mapui (
         .spawn(
             NodeBundle {
                 background_color: BackgroundColor(Color::rgba(0.1, 0.1, 0.5, 0.5)),
-                z_index: ZIndex::Global(5),
+                z_index: MAPLAYER,
                 style: Style {
                     position_type: PositionType::Absolute,
                     size: Size::new(Val::Percent(50.0), Val::Percent(100.0)),

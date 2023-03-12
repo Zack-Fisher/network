@@ -26,6 +26,12 @@ pub struct NPCPrefab {
 
 }
 
+/// is responsible for holding detection data.
+#[derive(Component, Default)]
+pub struct NPCData {
+    pub is_in_range: bool,
+}
+
 /// just a marker for more efficient query filters.
 #[derive(Component)]
 pub struct Textbox;
@@ -51,14 +57,29 @@ pub fn build_npc (
                     //i don't want the tbox to be a direct child of the NPC.
                     let tbox_ent = children
                         .spawn(
-                            PbrBundle {
-                                mesh: meshes.add(Mesh::from(shape::Plane {size: 1.0})),
-                                //modify the StandardMaterial texturehandle to show text.
-                                material: mats.add(StandardMaterial {
-                                    base_color_texture: None,
-                                    ..default()
-                                }),
+                            SpatialBundle {
+                                //tweak this until it's facing the right way.
+                                //this is basically just a text pivot.
+                                transform: Transform::from_translation(Vec3::ZERO)
+                                    .looking_at(Vec3::X, Vec3::Y),
                                 ..default()
+                            }
+                        )
+                        .with_children(
+                            |grandchildren| {
+                                //the actual textbox
+                                grandchildren
+                                    .spawn(
+                                    PbrBundle {
+                                        mesh: meshes.add(Mesh::from(shape::Plane {size: 1.0})),
+                                        //modify the StandardMaterial texturehandle to show text.
+                                        material: mats.add(StandardMaterial {
+                                            base_color_texture: None,
+                                            ..default()
+                                        }),
+                                        ..default()
+                                    }
+                                    );
                             }
                         )
                         .insert(Text2dBundle::default())
@@ -86,6 +107,7 @@ pub fn build_npc (
                                 //now, by having access to the npc entity we automatically get the tbox entity for free.
                                 entity: tbox_ent,
                             },
+                            NPCData,
                         ))
                         .with_children(|parent| {
                             parent.spawn((

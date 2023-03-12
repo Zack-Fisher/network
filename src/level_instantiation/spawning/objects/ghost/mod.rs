@@ -15,6 +15,8 @@ use bevy::prelude::*;
 use bevy::render::render_resource::*;
 use bevy_rapier3d::prelude::*;
 
+use bevy_text_mesh::prelude::*;
+
 use std::f32::consts::TAU;
 
 use serde::{Serialize, Deserialize};
@@ -61,6 +63,11 @@ pub struct GhostSplat {
 pub struct GhostPrefab {
 }
 
+#[derive(Component)]
+pub struct NameTag {
+    pub name: String,
+}
+
 //if necessary, we can also put a player_process method that pulls from the PlayerPrefab member variables. 
 //this should be good enough for roughly any use case?
 
@@ -72,6 +79,8 @@ pub fn build_ghost(
     scenes: Res<SceneAssets>,
 
     prefab_q: Query<(Entity, &GhostPrefab), Added<GhostPrefab>>,
+
+    server: Res<AssetServer>,
 )
 {
     for (ent, ghost_prefab) in prefab_q.iter() {
@@ -120,6 +129,34 @@ pub fn build_ghost(
                             Model,
                             Name::new("Ghost Model"),
                         ))
+                        ;
+
+                        let font: Handle<TextMeshFont> = server.load("fonts/roboto.ttf#mesh");
+
+                        //spawn the nametag, with 3d text for each ghost.
+                        parent.spawn(TextMeshBundle {
+                            text_mesh: TextMesh {
+                                text: String::from("jeff"),
+                                style: TextMeshStyle {
+                                    font: font.clone(),
+                                    font_size: SizeUnit::NonStandard(9.),
+                                    color: Color::rgb(0.0, 0.0, 0.0),
+                                    ..Default::default()
+                                },
+                                size: TextMeshSize {
+                                    ..Default::default()
+                                },
+                                ..Default::default()
+                            },
+                            transform: Transform {
+                                translation: Vec3::new(0., 5., 0.),
+                                ..Default::default()
+                            },
+                            ..Default::default()
+                        })
+                        .insert(NameTag {
+                            name: String::from("jeff"),
+                        })
                         ;
                     })
                     ;

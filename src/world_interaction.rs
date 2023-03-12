@@ -2,6 +2,7 @@ pub mod condition;
 pub mod dialog;
 pub mod interactions_ui;
 pub mod textbox;
+pub mod npc;
 
 use crate::world_interaction::condition::ConditionPlugin;
 use crate::world_interaction::dialog::DialogPlugin;
@@ -20,6 +21,8 @@ impl Plugin for WorldInteractionPlugin {
             .add_plugin(textbox::TextboxPlugin)
             .add_plugin(ConditionPlugin)
             .add_plugin(DialogPlugin)
-            .add_plugin(InteractionsUiPlugin);
+            .add_plugin(InteractionsUiPlugin)
+            .add_plugin(npc::NPCDetectionPlugin)
+            ;
     }
 }

@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use iyes_loopless::prelude::*;
 
-use crate::level_instantiation::spawning::objects::race::{*, self};
+use crate::{level_instantiation::spawning::objects::race::{*, self}, ui::RACELAYER};
 
 pub struct RaceUIPlugin;
 
@@ -43,6 +43,7 @@ fn build_raceui (
         .spawn(
             NodeBundle {
                 background_color: BackgroundColor(Color::rgba(0.1, 0.1, 0.5, 0.5)),
+                z_index: RACELAYER,
                 style: Style {
                     position_type: PositionType::Absolute,
                     size: Size::new(Val::Percent(50.0), Val::Percent(100.0)),

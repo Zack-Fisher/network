@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::level_instantiation::spawning::objects::npc::*;
+use crate::{level_instantiation::spawning::objects::npc::*, player_control::player_embodiment::Player};
 
 ///this manages all of the textbox components for npcs and stuff
 ///also handles the event system that shows text on individual textboxes.
@@ -11,6 +11,7 @@ impl Plugin for TextboxPlugin {
             .add_event::<ShowText>()
 
             .add_system(show_text_process)
+            .add_system(update_transform)
             ;        
     }
 }
@@ -46,7 +47,24 @@ fn show_text_process (
                         }
                     }
                 ];
+
+                info!("saying {} with entity {:?}", ev.text.clone(), ev.char_entity.clone());
             }
         }
     }
+}
+
+fn update_transform (
+    //query for all transforms, then filter by e_id
+    transform_q: Query<(&GlobalTransform, &TextEntityLink)>,
+
+    mut textbox_q: Query<&mut Transform, With<Textbox>>,
+)
+{
+    for (gtf, textlink_c) in transform_q.iter() {
+        if let Ok(mut tbox_tf) = textbox_q.get_mut(textlink_c.entity) {
+            //update translation. the transform is handled seperately.
+            tbox_tf.translation = gtf.translation();
+        }
+    } 
 }
