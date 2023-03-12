@@ -35,6 +35,7 @@ pub mod audio;
 pub mod network;
 pub mod chat;
 pub mod ghost;
+pub mod voices;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]
@@ -104,8 +105,9 @@ impl Plugin for GamePlugin {
             .add_plugin(FileSystemInteractionPlugin)
             .add_plugin(ShaderPlugin)
             .add_plugin(IngameMenuPlugin)
-            .add_plugin(UIPlugin)
+            .add_plugin(voices::VoicesProcessingPlugin)
             .add_plugin(chat::ChatProcessingPlugin)
+            .add_plugin(UIPlugin)
             .add_plugin(recording::RecordingPlugin)
             .add_plugin(audio::InternalAudioPlugin)
             ;
