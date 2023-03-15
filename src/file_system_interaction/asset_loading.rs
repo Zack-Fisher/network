@@ -54,9 +54,9 @@ pub struct SceneAssets {
 pub struct AnimationAssets {
     #[asset(path = "models/character.glb#Animation0")]
     pub character_idle: Handle<AnimationClip>,
-    #[asset(path = "models/Default.glb#Animation1")]
+    #[asset(path = "models/character.glb#Animation1")]
     pub character_walking: Handle<AnimationClip>,
-    #[asset(path = "models/Default.glb#Animation2")]
+    #[asset(path = "models/character.glb#Animation2")]
     pub character_running: Handle<AnimationClip>,
 }
 

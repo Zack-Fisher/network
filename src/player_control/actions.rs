@@ -167,9 +167,9 @@ pub fn create_ui_action_input_manager_bundle() -> InputManagerBundle<UiAction> {
             (QwertyScanCode::U, UiAction::ToggleMap),
             (QwertyScanCode::Y, UiAction::ToggleChat),
             (QwertyScanCode::F, UiAction::ToggleEquip),
-            (QwertyScanCode::AltSysrq, UiAction::Analyse),
         ])
         .insert_chord([KeyCode::LControl, KeyCode::T], UiAction::FocusChat)
+        .insert(KeyCode::V, UiAction::Analyse)
         .build(),
         ..default()
     }

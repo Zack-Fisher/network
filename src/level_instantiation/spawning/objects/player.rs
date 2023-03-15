@@ -9,9 +9,12 @@ use crate::player_control::actions::{
 use crate::player_control::camera::IngameCamera;
 use crate::player_control::player_embodiment::Player;
 use crate::ui::mapui::MapHandle;
+use crate::world_interaction::analysis::AnalyseBundle;
 use anyhow::Result;
 use bevy::prelude::*;
 use bevy::render::render_resource::*;
+use bevy::render::view::RenderLayers;
+use bevy_mod_picking::PickingCameraBundle;
 use bevy_rapier3d::prelude::*;
 
 use std::f32::consts::TAU;
@@ -47,6 +50,8 @@ pub fn build_player(
     mut map_handle: ResMut<MapHandle>,
 
     mut images: ResMut<Assets<Image>>,
+
+    mut meshes: ResMut<Assets<Mesh>>,
 )
 {
     for (ent, player_prefab) in prefab_q.iter() {
@@ -62,7 +67,10 @@ pub fn build_player(
                         //they have the same input bundle now.
                         create_player_action_input_manager_bundle(),
                         Name::new("Main Camera"),
+                        RenderLayers::from_layers(&[0]),
                     ))
+                    //bevy mod picking will use this to pick entities from.
+                    .insert(PickingCameraBundle::default())
                     .id()
                     ;
 

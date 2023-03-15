@@ -10,6 +10,7 @@ use crate::player_control::actions::{
 use crate::player_control::camera::IngameCamera;
 use crate::player_control::player_embodiment::Player;
 use crate::ui::mapui::MapHandle;
+use crate::world_interaction::analysis::{AnalyseBundle, AnalysisData};
 use anyhow::Result;
 use bevy::asset::LoadState;
 use bevy::prelude::*;
@@ -82,6 +83,9 @@ pub fn build_ghost(
     prefab_q: Query<(Entity, &GhostPrefab), Added<GhostPrefab>>,
 
     server: Res<AssetServer>,
+
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut mats: ResMut<Assets<StandardMaterial>>,
 )
 {
     for (ent, ghost_prefab) in prefab_q.iter() {
@@ -95,6 +99,8 @@ pub fn build_ghost(
                     ))
                     .id()
                     ;
+
+
 
                 let e_com = children
                     .spawn((
@@ -118,6 +124,28 @@ pub fn build_ghost(
                         Accessories::default(),
                     ))
                     .with_children(|parent| {
+                        let picking_id = parent
+                            .spawn(
+                                AnalyseBundle {
+                                    pbr: PbrBundle {
+                                        mesh: meshes.add(Mesh::from(shape::Cube {size: 3.0})),
+                                        material: mats.add(StandardMaterial {
+                                            base_color: Color::rgba(0.5, 0.0, 0.1, 0.3),
+                                            alpha_mode: AlphaMode::Blend,
+                                            ..default()
+                                        }),
+                                        ..default()
+                                    },
+                                    data: AnalysisData {
+                                        title: String::from("GHOST. AHHHH!!!"),
+                                        ..default()
+                                    },
+                                    ..default()
+                                }
+                            )
+                            .id()
+                            ;
+
                         parent.spawn((
                             SceneBundle {
                                 scene: scenes.character.clone(),

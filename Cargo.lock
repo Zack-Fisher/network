@@ -562,7 +562,7 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_editor_pls_core",
  "bevy_mod_debugdump",
- "bevy_mod_picking",
+ "bevy_mod_picking 0.11.0 (git+https://github.com/aevyrie/bevy_mod_picking?rev=73a71c24814bbe78fb564277c8246decbabe60df)",
  "indexmap",
  "opener",
  "pretty-type-name",
@@ -813,6 +813,16 @@ dependencies = [
  "bevy_ecs",
  "bevy_render",
  "pretty-type-name",
+]
+
+[[package]]
+name = "bevy_mod_picking"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0eb0a57d5c1ea9738b6858bb6206454b2d99265983b36ca82e5a2a0b5c9e7a1"
+dependencies = [
+ "bevy",
+ "bevy_mod_raycast",
 ]
 
 [[package]]
@@ -2145,6 +2155,7 @@ dependencies = [
  "bevy_egui 0.19.0",
  "bevy_hanabi",
  "bevy_kira_audio",
+ "bevy_mod_picking 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bevy_pkv",
  "bevy_prototype_debug_lines",
  "bevy_rapier3d",

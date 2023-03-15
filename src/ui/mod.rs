@@ -73,9 +73,23 @@ fn process_state_from_keyinput (
 )
 {
     for actionstate in uiaction_q.iter() {
+        let mut is_anything_pressed = false;
+
+        if actionstate.pressed(
+            UiAction::Analyse
+        )
+        {
+            is_anything_pressed = true;
+            match ui_state.current() {
+                UIState::AnalyseMode => {},
+                _ => {ui_state.set(UIState::AnalyseMode); info!("entering analysemode");}
+            }
+        }
+
         if actionstate.just_pressed(
             UiAction::FocusChat
         ) {
+            is_anything_pressed = true;
             match ui_state.current() {
                 UIState::ChatFocus => {ui_state.set(UIState::NoFocus); info!("chat already focused, unfocusing...");}
                 _ => {ui_state.set(UIState::ChatFocus); info!("set chat as the ui focus");}
@@ -85,9 +99,17 @@ fn process_state_from_keyinput (
         if actionstate.just_pressed(
             UiAction::ToggleEquip
         ) {
+            is_anything_pressed = true;
             match ui_state.current() {
                 UIState::EquipFocus => {ui_state.set(UIState::NoFocus); info!("equips already focused, unfocusing...");}
                 _ => {ui_state.set(UIState::EquipFocus); info!("set chat as the ui focus");}
+            }
+        }
+
+        if !is_anything_pressed {
+            match ui_state.current() {
+                UIState::AnalyseMode => {ui_state.set(UIState::NoFocus); info!("leaving analysemode");},
+                _ => {}
             }
         }
     }
