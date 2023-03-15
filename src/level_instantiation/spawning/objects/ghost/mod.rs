@@ -10,7 +10,7 @@ use crate::player_control::actions::{
 use crate::player_control::camera::IngameCamera;
 use crate::player_control::player_embodiment::Player;
 use crate::ui::mapui::MapHandle;
-use crate::world_interaction::analysis::{AnalyseBundle, AnalysisData};
+use crate::world_interaction::analysis::{AnalyseBundle, AnalysisData, Analysis};
 use anyhow::Result;
 use bevy::asset::LoadState;
 use bevy::prelude::*;
@@ -136,8 +136,11 @@ pub fn build_ghost(
                                         }),
                                         ..default()
                                     },
-                                    data: AnalysisData {
-                                        title: String::from("GHOST. AHHHH!!!"),
+                                    analysis: Analysis {
+                                        data: Some(AnalysisData {
+                                            title: String::from("GHOST. AHHHH!!!"),
+                                            ..default()
+                                        }),
                                         ..default()
                                     },
                                     ..default()

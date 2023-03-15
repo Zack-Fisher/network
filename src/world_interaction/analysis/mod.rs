@@ -1,6 +1,8 @@
 use bevy::{prelude::*, render::view::RenderLayers};
 use bevy_mod_picking::*;
 
+pub mod button;
+
 use crate::ui::UIState;
 
 pub struct AnalysisPlugin;
@@ -11,6 +13,8 @@ impl Plugin for AnalysisPlugin {
             //maybe don't strictly relate modpicking to analyse mode?
             .add_plugins(DefaultPickingPlugins)
 
+            .add_plugin(button::ButtonEvPlugin)
+
             //read by the ui system, this is the analysis system's endpoint.
             .insert_resource(CurrAnalysis::default())
 
@@ -18,6 +22,13 @@ impl Plugin for AnalysisPlugin {
             .add_system(change_camera_layers)
             ;
     }
+}
+
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Default)]
+pub enum AnalysisMode {
+    #[default]
+    Info,
+    Event,
 }
 
 #[derive(Resource, Default)]
@@ -30,10 +41,30 @@ pub struct AnalysisData {
     pub title: String,
 }
 
+#[derive(PartialEq, Eq, Hash, Clone, Copy, Default)]
+pub enum AnalysisEventType {
+    #[default]
+    Button,
+}
+
+/// contains an arbitrary payload, usually loaded in by the nametag.
+/// eg: [button=5] loads in the button call event with the payload string "5".
+#[derive(Default, Component, Clone)]
+pub struct AnalysisEvent {
+    pub payload: String,
+    pub ev_type: AnalysisEventType,
+}
+
+#[derive(Component, Default)]
+pub struct Analysis {
+    pub data: Option<AnalysisData>,
+    pub event: Option<AnalysisEvent>,
+}
+
 #[derive(Bundle)]
 pub struct AnalyseBundle {
     pub mod_picking: PickableBundle,
-    pub data: AnalysisData,
+    pub analysis: Analysis,
     /// bevy mod picking uses a mesh to pick.
     pub pbr: PbrBundle,
     pub layers: RenderLayers,
@@ -43,7 +74,7 @@ impl Default for AnalyseBundle {
     fn default() -> Self {
         Self {
             mod_picking: PickableBundle::default(),
-            data: AnalysisData::default(),
+            analysis: Analysis::default(),
             pbr: PbrBundle::default(),
             //spawn them on a special layer by default
             layers: RenderLayers::from_layers(&[3]),
