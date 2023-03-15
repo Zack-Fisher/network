@@ -1,0 +1,4 @@
+(
+    scene_path: "levels/apartment/elevator/apartment_elevator.glb",
+    dynamic_path: "levels/apartment/elevator/apartment_elevator.scn.ron"
+)
