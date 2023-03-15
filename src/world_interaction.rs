@@ -4,6 +4,7 @@ pub mod interactions_ui;
 pub mod textbox;
 pub mod npc;
 pub mod analysis;
+pub mod level_anim;
 
 use crate::world_interaction::condition::ConditionPlugin;
 use crate::world_interaction::dialog::DialogPlugin;
@@ -25,6 +26,7 @@ impl Plugin for WorldInteractionPlugin {
             .add_plugin(InteractionsUiPlugin)
             .add_plugin(npc::NPCDetectionPlugin)
             .add_plugin(analysis::AnalysisPlugin)
+            .add_plugin(level_anim::LevelAnimPlugin)
             ;
     }
 }

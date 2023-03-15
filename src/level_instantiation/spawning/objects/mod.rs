@@ -14,7 +14,7 @@ pub mod warppoint;
 pub mod skybox;
 pub mod race;
 pub mod ghost;
-pub mod button;
+pub mod analysis;
 
 pub struct ObjectPlugin;
 
@@ -34,7 +34,7 @@ impl Plugin for ObjectPlugin {
                     .with_system(primitives::build_cube)
                     .with_system(skybox::build_skybox)
                     .with_system(skybox::skybox_process)
-                    .with_system(button::build_button)
+                    .with_system(analysis::build_analysis)
 
                     .with_system(warppoint::build_warppoint)
                     .with_system(warppoint::warppoint_process)

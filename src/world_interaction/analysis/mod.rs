@@ -1,7 +1,7 @@
 use bevy::{prelude::*, render::view::RenderLayers};
 use bevy_mod_picking::*;
 
-pub mod button;
+pub mod event;
 
 use crate::ui::UIState;
 
@@ -13,10 +13,11 @@ impl Plugin for AnalysisPlugin {
             //maybe don't strictly relate modpicking to analyse mode?
             .add_plugins(DefaultPickingPlugins)
 
-            .add_plugin(button::ButtonEvPlugin)
-
             //read by the ui system, this is the analysis system's endpoint.
             .insert_resource(CurrAnalysis::default())
+
+            .add_plugin(event::AnalysisEventPlugin)
+            .add_event::<AnalysisEvent>()
 
             .add_system(analyse_process)
             .add_system(change_camera_layers)
@@ -24,41 +25,34 @@ impl Plugin for AnalysisPlugin {
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Default)]
-pub enum AnalysisMode {
-    #[default]
-    Info,
-    Event,
-}
-
 #[derive(Resource, Default)]
 pub struct CurrAnalysis {
     pub curr: Option<AnalysisData>,
 }
 
-#[derive(Default, Component, Clone)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Default, Component, Reflect, Serialize, Deserialize, Debug, Clone)]
+#[reflect(Component, Serialize, Deserialize)]
 pub struct AnalysisData {
     pub title: String,
 }
 
-#[derive(PartialEq, Eq, Hash, Clone, Copy, Default)]
-pub enum AnalysisEventType {
-    #[default]
-    Button,
-}
+use event::*;
 
 /// contains an arbitrary payload, usually loaded in by the nametag.
 /// eg: [button=5] loads in the button call event with the payload string "5".
-#[derive(Default, Component, Clone)]
+#[derive(Default, Component, Reflect, Serialize, Deserialize, Debug, Clone)]
+#[reflect(Component, Serialize, Deserialize)]
 pub struct AnalysisEvent {
     pub payload: String,
-    pub ev_type: AnalysisEventType,
+    pub ev_type: EventTypes,
 }
 
-#[derive(Component, Default)]
+#[derive(Default, Component, Debug, Clone)]
 pub struct Analysis {
     pub data: Option<AnalysisData>,
-    pub event: Option<AnalysisEvent>,
+    pub events: Vec<AnalysisEvent>,
 }
 
 #[derive(Bundle)]
@@ -116,18 +110,25 @@ fn change_camera_layers (
 
 fn analyse_process (
     mut picking_evr: EventReader<PickingEvent>,
+    mut analysis_evw: EventWriter<AnalysisEvent>,
 
     mut curr_an: ResMut<CurrAnalysis>,
 
-    an_q: Query<&AnalysisData>,
+    an_q: Query<&Analysis>,
 )
 {
     for ev in picking_evr.iter() {
         match ev.clone() {
             PickingEvent::Clicked(entity) => {
                 info!("clicked {:?}", entity.clone());
-                if let Ok(data) = an_q.get(entity.clone()) {
-                    curr_an.curr = Some(data.clone());
+                if let Ok(analysis) = an_q.get(entity.clone()) {
+                    curr_an.curr = analysis.data.clone();
+
+                    for event in analysis.events.iter() {
+                        analysis_evw.send(
+                            event.clone()
+                        );
+                    }
                 }
             },
             _ => {

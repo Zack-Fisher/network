@@ -152,10 +152,10 @@ fn handle_save_requests(
                 page: Some(dialog.current_page),
             });
             let save_model = SaveModel {
-                scene: current_level.scene.clone(),
                 conditions: conditions.clone(),
                 dialog_event,
                 player_transform: player.compute_transform(),
+                ..default()
             };
             let serialized = match ron::to_string(&save_model) {
                 Ok(string) => string,

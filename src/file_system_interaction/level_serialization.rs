@@ -10,6 +10,7 @@ use crate::world_interaction::condition::ActiveConditions;
 use crate::world_interaction::dialog::CurrentDialog;
 use crate::world_interaction::interactions_ui::InteractionOpportunities;
 use anyhow::{Context, Result};
+use bevy::gltf::Gltf;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 
@@ -22,6 +23,11 @@ impl Plugin for LevelSerializationPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<WorldLoadRequest>()
+            .insert_resource(CurrentLevel {
+                glb: Handle::<Gltf>::default(),
+                path: String::default(),
+                eid: Entity::from_raw(0),
+            })
             .add_system_to_stage(CoreStage::PostUpdate, load_world.pipe(log_errors));
     }
 }
@@ -34,10 +40,11 @@ pub struct WorldLoadRequest {
     pub spawnpoint_name: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Resource, Reflect, Serialize, Deserialize, Default)]
-#[reflect(Resource, Serialize, Deserialize)]
+#[derive(Resource)]
 pub struct CurrentLevel {
-    pub scene: String,
+    pub glb: Handle<Gltf>,
+    pub path: String,
+    pub eid: Entity,
 }
 
 #[derive(Debug, Component, Clone, PartialEq, Default, Reflect, Serialize, Deserialize)]
@@ -67,6 +74,7 @@ fn load_world(
     levels: Res<Assets<SerializedLevel>>,
     level_handles: Option<Res<LevelAssets>>,
     server: Res<AssetServer>,
+    mut curr_level: ResMut<CurrentLevel>,
 
     static_q: Query<Entity, With<StaticLevel>>,
     dynamic_q: Query<Entity, With<DynamicLevel>>,
@@ -108,17 +116,30 @@ fn load_world(
                     "Serialized level not found",
                 )
             })?;
+        
+        //we want to pass around the gltf data for the level on the resource line, other modules need to access
+        //things like the animation names of our level.
+        let glb_handle: Handle<Gltf> = server.load(format!("{}", serialized_level.scene_path.clone()));
 
-        commands
+        //load the whole scene
+        curr_level.glb = glb_handle.clone();
+        curr_level.path = filename.to_string().clone();
+
+        let glb_scene_handle: Handle<Scene> = server.load(format!("{}#Scene0", serialized_level.scene_path.clone()));
+
+        let static_ent = commands
             .spawn(
                 SceneBundle {
-                    scene: server.load(format!("{}#Scene0", serialized_level.scene_path.clone())),
+                    scene: glb_scene_handle.clone(),
                     ..default()
                 }
             )
             .insert(StaticLevel)
             .insert(Name::new("level static scene"))
+            .id()
             ;
+
+        curr_level.eid = static_ent.clone();
 
         commands
             .spawn(
@@ -179,9 +200,6 @@ fn load_world(
             .insert(Name::new("Constants"))
             ;
 
-        commands.insert_resource(CurrentLevel {
-            scene: filename.to_string(),
-        });
         commands.insert_resource(InteractionOpportunities::default());
         commands.insert_resource(ActiveConditions::default());
         commands.remove_resource::<CurrentDialog>();

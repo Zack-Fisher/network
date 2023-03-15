@@ -137,10 +137,6 @@ pub fn build_ghost(
                                         ..default()
                                     },
                                     analysis: Analysis {
-                                        data: Some(AnalysisData {
-                                            title: String::from("GHOST. AHHHH!!!"),
-                                            ..default()
-                                        }),
                                         ..default()
                                     },
                                     ..default()
