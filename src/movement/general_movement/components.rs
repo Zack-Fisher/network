@@ -2,6 +2,11 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use serde::{Deserialize, Serialize};
 
+/// highly general marker struct. both ghosts and players are characters, but not npcs?
+/// using this for animationentitylink parent detection primarily.
+#[derive(Component)]
+pub struct Character;
+
 pub struct CharacterComponentRegistryPlugin;
 
 //just for registering all these types into the editor in one neat place.

@@ -1,0 +1,4 @@
+(
+    scene_path: "levels/navmeshing/navmeshing.glb",
+    dynamic_path: "levels/navmeshing/navmeshing.scn.ron"
+)

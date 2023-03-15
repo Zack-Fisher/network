@@ -18,8 +18,10 @@ pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(PhysicsPlugin)
+        app
+            .add_plugin(PhysicsPlugin)
             .add_plugin(GeneralMovementPlugin)
-            .add_plugin(NavigationPlugin);
+            .add_plugin(NavigationPlugin)
+            ;
     }
 }

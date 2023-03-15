@@ -46,13 +46,13 @@ pub struct AudioAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct SceneAssets {
-    #[asset(path = "models/Default.glb#Scene0")]
+    #[asset(path = "models/character.glb#Scene0")]
     pub character: Handle<Scene>,
 }
 
 #[derive(AssetCollection, Resource)]
 pub struct AnimationAssets {
-    #[asset(path = "models/Default.glb#Animation0")]
+    #[asset(path = "models/character.glb#Animation0")]
     pub character_idle: Handle<AnimationClip>,
     #[asset(path = "models/Default.glb#Animation1")]
     pub character_walking: Handle<AnimationClip>,

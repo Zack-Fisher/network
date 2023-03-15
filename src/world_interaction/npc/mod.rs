@@ -1,6 +1,7 @@
 //detects all the wacky things that happen to npcs, and signals them out.
 //one part of the dialogue system.
 use bevy::prelude::*;
+use bevy_text_mesh::TextMesh;
 
 use crate::{level_instantiation::spawning::objects::npc::NPCData, player_control::player_embodiment::Player};
 
@@ -12,7 +13,24 @@ impl Plugin for NPCDetectionPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_system(is_in_range)
+
+            .add_system(npc_textshow_process)
             ;
+    }
+}
+
+fn npc_textshow_process (
+    data_q: Query<(&NPCData, &Children)>,
+
+    mut textmesh_q: Query<&mut TextMesh>,
+)
+{
+    for (data, children) in data_q.iter() {
+        for &child in children {
+            if let Ok(mut npc_textmesh) = textmesh_q.get_mut(child.clone()) {
+
+            }
+        } 
     }
 }
 

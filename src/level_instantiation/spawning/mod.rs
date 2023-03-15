@@ -15,6 +15,8 @@ impl Plugin for SpawningPlugin {
 
             .add_system(spawn_process)
 
+            .add_system(animation_link::link_animations)
+
             //all the different marker prefab processes
             
             ;

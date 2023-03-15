@@ -1,6 +1,7 @@
+use crate::accessories::Accessories;
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
-use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model, CameraEntityLink};
+use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model, CameraEntityLink, Character};
 use crate::player_control::action_handler::ActionStream;
 use crate::player_control::actions::{
     create_player_action_input_manager_bundle, create_ui_action_input_manager_bundle,
@@ -86,6 +87,8 @@ pub fn build_player(
                         Ccd::enabled(),
                         create_player_action_input_manager_bundle(),
                         CameraEntityLink {camera_entity: cam_id.clone()},
+                        Character,
+                        Accessories::default(),
                     ))
                     .with_children(|parent| {
                         parent.spawn((
@@ -94,7 +97,7 @@ pub fn build_player(
                                 transform: Transform {
                                     translation: Vec3::new(0., -HEIGHT / 2. - RADIUS, 0.),
                                     rotation: Quat::from_rotation_y(TAU / 2.),
-                                    scale: Vec3::splat(1.),
+                                    scale: Vec3::splat(0.4),
                                 },
                                 ..default()
                             },

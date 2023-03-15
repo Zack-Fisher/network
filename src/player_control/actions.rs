@@ -121,10 +121,16 @@ impl PlayerAction {
 #[derive(Debug, Clone, Actionlike, Reflect, FromReflect, Default)]
 pub enum UiAction {
     #[default]
+    //remove this? not using it. (right now)
     TogglePause,
+    //the map doesn't need focus right now.
     ToggleMap,
     ToggleChat,
+    //toggling means viewing the chatwindow, focusing means to consume input and be able to chat.
     FocusChat,
+    //open the equips menu. focuses by default.
+    ToggleEquip,
+    Analyse
 }
 
 pub fn create_player_action_input_manager_bundle() -> InputManagerBundle<PlayerAction> {
@@ -160,8 +166,11 @@ pub fn create_ui_action_input_manager_bundle() -> InputManagerBundle<UiAction> {
             (QwertyScanCode::Escape, UiAction::TogglePause),
             (QwertyScanCode::U, UiAction::ToggleMap),
             (QwertyScanCode::Y, UiAction::ToggleChat),
-            (QwertyScanCode::T, UiAction::FocusChat),
-            ]),
+            (QwertyScanCode::F, UiAction::ToggleEquip),
+            (QwertyScanCode::AltSysrq, UiAction::Analyse),
+        ])
+        .insert_chord([KeyCode::LControl, KeyCode::T], UiAction::FocusChat)
+        .build(),
         ..default()
     }
 }

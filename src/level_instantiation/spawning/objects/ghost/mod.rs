@@ -1,4 +1,5 @@
 use crate::GameState;
+use crate::accessories::Accessories;
 use crate::file_system_interaction::asset_loading::*;
 use crate::level_instantiation::spawning::animation_link::AnimationEntityLink;
 use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model, CameraEntityLink};
@@ -114,6 +115,7 @@ pub fn build_ghost(
                         Ccd::enabled(),
                         //we're linking the entity to its camera, so that we don't trigger every IngameCamera with each action.
                         CameraEntityLink {camera_entity},
+                        Accessories::default(),
                     ))
                     .with_children(|parent| {
                         parent.spawn((
@@ -134,12 +136,13 @@ pub fn build_ghost(
                         let font: Handle<TextMeshFont> = server.load("fonts/roboto.ttf#mesh");
 
                         //spawn the nametag, with 3d text for each ghost.
+                        info!("spawning nametag for ghost.");
                         parent.spawn(TextMeshBundle {
                             text_mesh: TextMesh {
                                 text: String::from("jeff"),
                                 style: TextMeshStyle {
                                     font: font.clone(),
-                                    font_size: SizeUnit::NonStandard(9.),
+                                    font_size: SizeUnit::NonStandard(90.),
                                     color: Color::rgb(0.0, 0.0, 0.0),
                                     ..Default::default()
                                 },

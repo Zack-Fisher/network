@@ -1,4 +1,5 @@
 use crate::level_instantiation::spawning::objects::GameCollisionGroup;
+use bevy_text_mesh::prelude::*;
 use crate::file_system_interaction::asset_loading::*;
 use crate::movement::general_movement::{CharacterAnimations, CharacterControllerBundle, Model};
 use crate::movement::navigation::Follower;
@@ -6,7 +7,8 @@ use crate::world_interaction::dialog::{DialogId, DialogTarget};
 use anyhow::Result;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
-use std::f32::consts::TAU;
+use bevy_text_mesh::TextMeshBundle;
+use std::f32::consts::{TAU, PI};
 
 use serde::{Serialize, Deserialize};
 
@@ -45,6 +47,8 @@ pub fn build_npc (
 
     mut meshes: ResMut<Assets<Mesh>>,
     mut mats: ResMut<Assets<StandardMaterial>>,
+
+    server: Res<AssetServer>,
 )
 {
     for (ent, npc_prefab) in prefab_q.iter() {
@@ -52,40 +56,6 @@ pub fn build_npc (
         commands.entity(ent)
             .with_children(
                 |children| {
-                    //now, spawn the textbox and link them seperately.
-                    //we need to be careful about tbox elinks just like the ghost cameras, we'll have a ton of tboxes and parent ents.
-                    //i don't want the tbox to be a direct child of the NPC.
-                    let tbox_ent = children
-                        .spawn(
-                            SpatialBundle {
-                                //tweak this until it's facing the right way.
-                                //this is basically just a text pivot.
-                                transform: Transform::from_translation(Vec3::ZERO)
-                                    .looking_at(Vec3::X, Vec3::Y),
-                                ..default()
-                            }
-                        )
-                        .with_children(
-                            |grandchildren| {
-                                //the actual textbox
-                                grandchildren
-                                    .spawn(
-                                    PbrBundle {
-                                        mesh: meshes.add(Mesh::from(shape::Plane {size: 1.0})),
-                                        //modify the StandardMaterial texturehandle to show text.
-                                        material: mats.add(StandardMaterial {
-                                            base_color_texture: None,
-                                            ..default()
-                                        }),
-                                        ..default()
-                                    }
-                                    );
-                            }
-                        )
-                        .insert(Text2dBundle::default())
-                        .insert(Textbox)
-                        .id()
-                        ;
 
                     children
                         .spawn((
@@ -100,16 +70,41 @@ pub fn build_npc (
                                 walk: animations.character_walking.clone(),
                                 aerial: animations.character_running.clone(),
                             },
-                            DialogTarget {
-                                dialog_id: DialogId::new("follower"),
-                            },
-                            TextEntityLink {
-                                //now, by having access to the npc entity we automatically get the tbox entity for free.
-                                entity: tbox_ent,
-                            },
-                            NPCData,
+                            NPCData::default(),
                         ))
                         .with_children(|parent| {
+                            let font: Handle<TextMeshFont> = server.load("fonts/roboto.ttf#mesh");
+
+                            //now, spawn the textbox and link them seperately.
+                            //we need to be careful about tbox elinks just like the ghost cameras, we'll have a ton of tboxes and parent ents.
+                            //i don't want the tbox to be a direct child of the NPC.
+
+                            let mut text_tf = Transform::from_xyz(0.0, 0.0, -0.5);
+                            text_tf.rotate_y(PI);
+
+                            parent
+                                .spawn(
+                                    TextMeshBundle {
+                                        text_mesh: TextMesh {
+                                            text: String::from("textbox"),
+                                            style: TextMeshStyle {
+                                                font: font.clone(),
+                                                font_size: SizeUnit::NonStandard(20.),
+                                                color: Color::rgb(0.0, 0.0, 0.0),
+                                                ..Default::default()
+                                            },
+                                            size: TextMeshSize {
+                                                ..Default::default()
+                                            },
+                                            ..Default::default()
+                                        },
+                                        transform: text_tf.clone(),
+                                        ..Default::default()
+                                    }
+                                )
+                                .insert(Textbox)
+                                ;
+
                             parent.spawn((
                                 Name::new("NPC Dialog Collider"),
                                 Collider::cylinder(HEIGHT / 2., RADIUS * 5.),

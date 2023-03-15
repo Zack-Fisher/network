@@ -13,6 +13,8 @@ impl Plugin for ChatPlugin {
             .add_startup_system(build_chat_ui)
 
             .add_system(chat_ui_base_process)
+            .add_system(chat_message_process)
+            .add_system(chat_box_process)
             ;
     }
 }
@@ -22,6 +24,10 @@ struct ChatUIBase;
 
 #[derive(Component)]
 struct MessageContainer;
+
+/// the component attached to the entity that shows the player's current typing string in the chat.
+#[derive(Component)]
+struct ChatBox;
 
 fn build_chat_ui (
     mut commands: Commands,
@@ -76,6 +82,27 @@ fn build_chat_ui (
                         )
                         .insert(MessageContainer)
                         ;
+                    message_children
+                        .spawn(
+                            TextBundle {
+                                text: Text {
+                                    sections: vec![
+                                        TextSection {
+                                            value: String::from("typing"),
+                                            style: TextStyle {
+                                                font: server.load("fonts/roboto.ttf"),
+                                                font_size: 50.0,
+                                                color: Color::BEIGE,
+                                            }
+                                        }
+                                    ],
+                                    ..default()
+                                },
+                                ..default()
+                            }
+                        )
+                        .insert(ChatBox)
+                        ;
                 })
                 ;
         })
@@ -106,7 +133,7 @@ fn chat_message_process (
     server: Res<AssetServer>,
 )
 {
-    for chat_text_comp in text_q.iter_mut() {
+    for mut chat_text_comp in text_q.iter_mut() {
         let mut vec: Vec<TextSection> = vec![];
 
         for message in messages.vec.iter() {
@@ -127,5 +154,26 @@ fn chat_message_process (
         }
 
         chat_text_comp.sections = vec;
+    }
+}
+
+fn chat_box_process (
+    mut text_q: Query<&mut Text, With<ChatBox>>,
+
+    messages: Res<Messages>,
+    server: Res<AssetServer>,
+)
+{
+    for mut text in text_q.iter_mut() {
+        text.sections = vec![
+            TextSection {
+                value: messages.curr_typing.clone(),
+                style: TextStyle {
+                    font: server.load("fonts/roboto.ttf"),
+                    font_size: 50.0,
+                    color: Color::BEIGE,
+                }
+            }
+        ]
     }
 }

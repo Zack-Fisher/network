@@ -36,6 +36,7 @@ pub mod network;
 pub mod chat;
 pub mod ghost;
 pub mod voices;
+pub mod accessories;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]
@@ -81,6 +82,8 @@ enum GameState {
 /// - [`ParticlePlugin`]: Handles the particle system. Since [bevy_hanabi](https://github.com/djeedai/bevy_hanabi) does not support wasm, this plugin is only available on native.
 pub struct GamePlugin;
 
+use bevy_text_mesh::prelude::*;
+
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         #[cfg(not(feature = "core"))]
@@ -99,6 +102,7 @@ impl Plugin for GamePlugin {
             .add_plugin(BevyConfigPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(MovementPlugin)
+            .add_plugin(TextMeshPlugin)
             .add_plugin(PlayerControlPlugin)
             .add_plugin(WorldInteractionPlugin)
             .add_plugin(LevelInstantiationPlugin)
@@ -110,6 +114,7 @@ impl Plugin for GamePlugin {
             .add_plugin(UIPlugin)
             .add_plugin(recording::RecordingPlugin)
             .add_plugin(audio::InternalAudioPlugin)
+            .add_plugin(accessories::AccessoryPlugin)
             ;
 
         #[cfg(feature = "dev")]

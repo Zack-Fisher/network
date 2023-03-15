@@ -9,6 +9,7 @@ pub enum Levels {
     Test,
     Testtwo,
     MVP,
+    NAVMESHING,
 }
 
 impl Levels {
@@ -18,6 +19,7 @@ impl Levels {
             Self::Test => "levels/test/test.lvl.ron",
             Self::Testtwo => "levels/testtwo/testtwo.lvl.ron",
             Self::MVP => "levels/mvp/mvp.lvl.ron",
+            Self::NAVMESHING => "levels/navmeshing/navmeshing.lvl.ron",
         }
     }
 }

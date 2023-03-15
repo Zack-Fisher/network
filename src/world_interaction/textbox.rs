@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_text_mesh::TextMesh;
 use crate::{level_instantiation::spawning::objects::npc::*, player_control::player_embodiment::Player};
 
 ///this manages all of the textbox components for npcs and stuff
@@ -25,30 +26,19 @@ pub struct ShowText {
 fn show_text_process (
     mut show_evr: EventReader<ShowText>,
 
-    tboxlink_q: Query<&TextEntityLink>,
+    child_q: Query<&Children>,
 
-    mut text_q: Query<&mut Text, With<Textbox>>,
-
-    server: Res<AssetServer>,
+    mut text_q: Query<&mut TextMesh>,
 )
 {
     for ev in show_evr.iter() {
-        if let Ok(link_c) = tboxlink_q.get(ev.char_entity) {
-            let tbox_ent = link_c.entity.clone(); 
+        if let Ok(npc_children) = child_q.get(ev.char_entity) {
+            for &child in npc_children {
+                if let Ok(mut npc_textmesh) = text_q.get_mut(child) {
+                    npc_textmesh.text = ev.text.clone();
 
-            if let Ok(mut text_c) = text_q.get_mut(tbox_ent) {
-                text_c.sections = vec![
-                    TextSection {
-                        value: ev.text.clone(),
-                        style: TextStyle {
-                            font: server.load("fonts/roboto.ttf"),
-                            font_size: 50.0,
-                            color: Color::BEIGE,
-                        }
-                    }
-                ];
-
-                info!("saying {} with entity {:?}", ev.text.clone(), ev.char_entity.clone());
+                    info!("saying {} with entity {:?}", ev.text.clone(), ev.char_entity.clone());
+                }
             }
         }
     }
