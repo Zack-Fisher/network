@@ -189,7 +189,7 @@ fn load_world (
             .insert(Name::new("level dynamic scene"))
             ;
 
-        info!("spawning the player/constant bundle");
+        info!("spawning the constant bundle");
 
         commands
             .spawn(
@@ -322,12 +322,11 @@ fn poll_loaded (
                 None => {},
             }
 
-            for key in gltf.get(&curr_level.glb).unwrap().named_meshes.keys() {
+            for key in gltf.get(&curr_level.glb).unwrap().named_nodes.keys() {
                 // we'll count up all the occurrences of the "spawn" tag.
                 let mut temp: u32 = 0;
 
                 if key.clone().trim().to_lowercase().contains("[spawn=") {
-                    info!("found spawn tag, adding to temp");
                     temp += 1;
                 }
 

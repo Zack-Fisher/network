@@ -11,7 +11,7 @@ impl Plugin for SpawnpointPlugin {
             .insert_resource(SpawnTable::default())
 
             .add_system(manage_warp_collisions)
-            .add_system(build_spawnpoint)
+            .add_system_to_stage(CoreStage::PostUpdate, build_spawnpoint)
             ;
     }
 }
