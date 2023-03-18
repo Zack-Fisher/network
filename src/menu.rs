@@ -1,3 +1,5 @@
+use crate::file_system_interaction::level_serialization::WorldLoadRequest;
+use crate::level_instantiation::level::Levels;
 use crate::util::log_error::log_errors;
 use crate::GameState;
 use anyhow::Ok;
@@ -23,6 +25,8 @@ impl Plugin for MenuPlugin {
 fn setup_menu(
     mut egui_context: ResMut<EguiContext>,
     mut state: ResMut<State<GameState>>,
+
+    mut load_evw: EventWriter<WorldLoadRequest>,
 ) -> Result<()> {
     get_menu_panel()
         .show(egui_context.ctx_mut(), |ui| {
@@ -34,6 +38,10 @@ fn setup_menu(
                 ui.add_space(50.);
                 if ui.button("Play").clicked() {
                     state.set(GameState::Playing)?;
+                    load_evw.send(WorldLoadRequest {
+                        level: Levels::Elevator,
+                        spawnpoint_name: String::from("jeff"),
+                    });
                 }
                 Ok(())
             })

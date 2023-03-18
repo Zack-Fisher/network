@@ -1,5 +1,6 @@
 use crate::util::log_error::log_errors;
 use anyhow::{Context, Result};
+use bevy::log::LogPlugin;
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowId};
 use bevy::winit::WinitWindows;
@@ -26,7 +27,8 @@ impl Plugin for BevyConfigPlugin {
         let default_plugins = default_plugins.set(AssetPlugin {
             watch_for_changes: true,
             ..default()
-        });
+        })
+        ;
         app.insert_resource(Msaa { samples: 4 })
             .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
             .add_plugins(default_plugins)

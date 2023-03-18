@@ -37,6 +37,7 @@ pub mod chat;
 pub mod ghost;
 pub mod voices;
 pub mod accessories;
+pub mod rendering;
 
 pub use crate::bevy_config::BevyConfigPlugin;
 #[cfg(feature = "dev")]

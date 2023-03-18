@@ -43,6 +43,8 @@ fn process (
             if let Ok(mut anim_player) = animplayer_q.get_mut(curr_level.eid.clone()) {
                 info!("found the animplayer, playing level animation.");
                 anim_player.play(anim_clip.clone());
+            } else {
+                info!("couldn't find the AnimationPlayer for the associated SceneBundle, cannot play the animation."); 
             }
         }
     }

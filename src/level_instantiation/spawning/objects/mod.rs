@@ -53,6 +53,7 @@ bitflags! {
     pub struct GameCollisionGroup: u32 {
         const PLAYER = 1 << 0;
         const OTHER = 1 << 31;
+        const WARP = 1 << 2;
 
         const ALL = u32::MAX;
         const NONE = 0;

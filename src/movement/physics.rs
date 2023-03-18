@@ -22,7 +22,8 @@ impl Plugin for PhysicsPlugin {
             })
             .add_system_set(
                 SystemSet::on_update(GameState::Playing)
-                    .with_system(read_colliders.pipe(log_errors)),
+                    .with_system(read_colliders.pipe(log_errors))
+                    ,
             );
     }
 }

@@ -5,6 +5,7 @@ pub mod textbox;
 pub mod npc;
 pub mod analysis;
 pub mod level_anim;
+pub mod spawnpoint;
 
 use crate::world_interaction::condition::ConditionPlugin;
 use crate::world_interaction::dialog::DialogPlugin;
@@ -27,6 +28,7 @@ impl Plugin for WorldInteractionPlugin {
             .add_plugin(npc::NPCDetectionPlugin)
             .add_plugin(analysis::AnalysisPlugin)
             .add_plugin(level_anim::LevelAnimPlugin)
+            .add_plugin(spawnpoint::SpawnpointPlugin)
             ;
     }
 }
