@@ -6,6 +6,7 @@ pub mod npc;
 pub mod analysis;
 pub mod level_anim;
 pub mod spawnpoint;
+pub mod collectible;
 
 use crate::world_interaction::condition::ConditionPlugin;
 use crate::world_interaction::dialog::DialogPlugin;
@@ -29,6 +30,7 @@ impl Plugin for WorldInteractionPlugin {
             .add_plugin(analysis::AnalysisPlugin)
             .add_plugin(level_anim::LevelAnimPlugin)
             .add_plugin(spawnpoint::SpawnpointPlugin)
+            .add_plugin(collectible::CollectiblePlugin)
             ;
     }
 }
