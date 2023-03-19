@@ -15,6 +15,7 @@ pub mod skybox;
 pub mod race;
 pub mod ghost;
 pub mod analysis;
+pub mod collectible;
 
 pub struct ObjectPlugin;
 
