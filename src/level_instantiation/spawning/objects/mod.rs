@@ -37,6 +37,8 @@ impl Plugin for ObjectPlugin {
                     .with_system(skybox::skybox_process)
                     .with_system(analysis::build_analysis)
 
+                    .with_system(collectible::build_collectible)
+
                     .with_system(warppoint::build_warppoint)
                     .with_system(warppoint::warppoint_process)
             )

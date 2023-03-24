@@ -119,7 +119,7 @@ fn is_collected_process (
             // we've collected it now, push it to the global table so it doesn't show up anymore.
             coll_t.collected.push(col.uuid.clone());
 
-            match col.item {
+            match col.item.clone() {
                 ItemVar::Hat(hat) => {
 
                 },

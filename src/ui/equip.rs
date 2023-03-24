@@ -13,6 +13,7 @@ impl Plugin for EquipPlugin {
             
             .add_system(process)
             .add_system(equip_button_process)
+            .add_system(equip_button_builder)
             ;
     }
 }
@@ -87,6 +88,35 @@ fn process (
 fn equip_button_process (
     equip_q: Query<&Interaction, (With<EquipButton>, Changed<Interaction>)>,
 
+    //only modify the main Player's accessories.
+    mut player_q: Query<&mut Accessories, With<Player>>,
+)
+{
+    for int in equip_q.iter() {
+        for mut acc in player_q.iter_mut() {
+            match int.clone() {
+                Interaction::Clicked => {
+                    if let Some(_) = acc.hat {
+                        acc.hat = None;
+                    } else {
+                        info!("equipping tophat");
+                        acc.hat = Some(HatAcc::TopHat);
+                    }
+                }
+                Interaction::Hovered => {
+                }
+                Interaction::None => {
+                }
+            }
+        }
+    }
+}
+
+/// how should we build buttons? how can we detect a change in a resource?
+/// in godot, i used to just poll the data store for changes. right now, i think that's good enough for our resources.
+/// another idea is to just use an immediate-mode style design, where it re-renders every frame. that's not going
+/// to work well, probably.
+fn equip_button_builder (
     //only modify the main Player's accessories.
     mut player_q: Query<&mut Accessories, With<Player>>,
 )

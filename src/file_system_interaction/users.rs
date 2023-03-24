@@ -1,5 +1,3 @@
-use std::f32::consts::E;
-
 use bevy::{prelude::*, utils::HashMap};
 
 //keeps track of the current user and loads new ones, all from a resource.
@@ -50,8 +48,7 @@ pub struct UserTable {
 
 /// the data structure that holds all of the user's stuff. to be loaded in the users.rs module and managed through CurrUser
 /// some stuff like inventory is user-specific, shove it all in here.
-#[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Serialize, Deserialize, Resource)]
-#[reflect(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UserAccount {
     pub name: String,
     pub favorite_color: Color,
@@ -64,6 +61,8 @@ impl Default for UserAccount {
         Self {
             name: String::from("JOHN EGBERT"),
             favorite_color: Color::rgb(0.4, 0.5, 0.1),
+            inventory: Inventory::default(),
+            flags: FlagsTable::default(),
         }
     }
 }

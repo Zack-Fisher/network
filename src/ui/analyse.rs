@@ -27,7 +27,6 @@ fn build_analyse_ui (
     mut commands: Commands,
 
     server: Res<AssetServer>,
-
 )
 {
     commands

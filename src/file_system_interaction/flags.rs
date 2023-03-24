@@ -3,6 +3,7 @@
 use bevy::{prelude::*, utils::HashMap};
 
 use bevy_pkv::PkvStore;
+use serde::{Serialize, Deserialize};
 
 pub struct FlagPlugin;
 
@@ -25,7 +26,7 @@ impl Plugin for FlagPlugin {
 }
 
 //a wrapper struct
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Clone, Serialize, Deserialize)]
 pub struct FlagsTable{
     pub table: HashMap<String, bool>,
 }
