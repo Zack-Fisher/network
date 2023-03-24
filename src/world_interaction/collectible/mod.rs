@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::utils::Uuid;
 
-use crate::{inventory::ItemData, player_control::player_embodiment::Player, accessories::enums::HatAcc};
+use crate::{inventory::ItemVar, player_control::player_embodiment::Player, accessories::enums::HatAcc};
 
 use super::analysis::AnalyseBundle;
 
@@ -34,7 +34,7 @@ pub struct CollectibleTable {
 pub struct Collectible {
     // how far away do we check for collision with the player?
     pub range: f32,
-    pub item: ItemData,
+    pub item: ItemVar,
     /// whenever is_collected is Some, we've ensured that it's checked the Uuid table.
     /// when it's None, there's no guarantee either way.
     pub is_collected: Option<bool>,
@@ -45,7 +45,7 @@ impl Default for Collectible {
     fn default() -> Self {
         Self {
             range: 3.0,
-            item: ItemData::Hat(HatAcc::TopHat),
+            item: ItemVar::Hat(HatAcc::TopHat),
             is_collected: None,
             uuid: Uuid::new_v4().to_string(),
         }
@@ -118,6 +118,18 @@ fn is_collected_process (
         if let Ok(mut col) = col_q.get_mut(ev.collectible_ent.clone()) {
             // we've collected it now, push it to the global table so it doesn't show up anymore.
             coll_t.collected.push(col.uuid.clone());
+
+            match col.item {
+                ItemVar::Hat(hat) => {
+
+                },
+                ItemVar::Wrist(wrist) => {
+
+                },
+                ItemVar::Key(key) => {
+
+                },
+            }
 
             commands.entity(ev.collectible_ent.clone()).despawn_recursive(); 
         }

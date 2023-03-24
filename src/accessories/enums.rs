@@ -1,6 +1,12 @@
 use bevy::prelude::*;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Copy, Eq, PartialEq, Hash, PartialOrd)]
+trait AccessoryItem {
+
+}
+
+#[derive(Clone, Copy, Eq, PartialEq, Hash, PartialOrd, Serialize, Deserialize, Reflect)]
+#[reflect(Serialize, Deserialize)]
 pub enum WristAcc {
     Watch,
 }
@@ -16,7 +22,8 @@ impl WristAcc {
     }
 }
 
-#[derive(Clone, Copy, Eq, PartialEq, Hash, PartialOrd)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, PartialOrd, Serialize, Deserialize, Reflect)]
+#[reflect(Serialize, Deserialize)]
 pub enum HatAcc {
     TopHat,
 }

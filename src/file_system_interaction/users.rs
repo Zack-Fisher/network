@@ -34,6 +34,10 @@ impl Plugin for UserPlugin {
 use bevy_pkv::PkvStore;
 use serde::{Serialize, Deserialize};
 
+use crate::inventory::Inventory;
+
+use super::flags::FlagsTable;
+
 #[derive(Serialize, Deserialize, Resource)]
 pub struct UserTable {
     /// the String in the HashMap should always just be the user's name.
@@ -45,11 +49,14 @@ pub struct UserTable {
 }
 
 /// the data structure that holds all of the user's stuff. to be loaded in the users.rs module and managed through CurrUser
+/// some stuff like inventory is user-specific, shove it all in here.
 #[derive(Debug, Clone, PartialEq, Reflect, FromReflect, Serialize, Deserialize, Resource)]
 #[reflect(Serialize, Deserialize)]
 pub struct UserAccount {
     pub name: String,
     pub favorite_color: Color,
+    pub inventory: Inventory,
+    pub flags: FlagsTable,
 }
 
 impl Default for UserAccount {
