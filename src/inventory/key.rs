@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-#[derive(Hash, Eq, PartialEq, Clone)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Hash, Eq, PartialEq, Clone, Reflect, Serialize, Deserialize)]
 pub enum KeyItem {
 
 }
