@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use serde::{Serialize, Deserialize};
 use bevy::utils::Uuid;
 
-use crate::{inventory::ItemVar, world_interaction::collectible::CollectibleBundle};
+use crate::{inventory::ItemVar, world_interaction::{collectible::{CollectibleBundle, Collectible}, analysis::AnalyseBundle}};
 
 //primitive shapes to help with level design
 #[derive(Component, Reflect, Serialize, Deserialize)]
@@ -41,7 +41,18 @@ pub fn build_collectible (
             .with_children(|children| {
                 children
                     .spawn(
-                        CollectibleBundle::default()
+                        CollectibleBundle {
+                            analyse: AnalyseBundle::default(),
+                            collectible: Collectible {
+                                // this is what makes everything work. 
+                                // we need to pass the serialized identifier, rather
+                                // than letting it generate its own thing.
+                                range: col_prefab.range.clone(),
+                                uuid: col_prefab.uuid.clone(),
+                                item: col_prefab.item.clone(),
+                                ..default()
+                            },
+                        }
                     )
                     ;
             });

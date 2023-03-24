@@ -5,7 +5,7 @@ trait AccessoryItem {
 
 }
 
-#[derive(Clone, Copy, Eq, PartialEq, Hash, PartialOrd, Serialize, Deserialize, Reflect)]
+#[derive(Clone, Copy, Eq, PartialEq, Hash, PartialOrd, Reflect, Serialize, Deserialize)]
 #[reflect(Serialize, Deserialize)]
 pub enum WristAcc {
     Watch,
